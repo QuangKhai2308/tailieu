@@ -25,8 +25,9 @@ public class Login extends javax.swing.JFrame {
      */
     String user = "sa";
     String pass = "23082001";
-    String url = "jdbc:sqlserver://localhost: 143; database = QLSV";
+    String url = "jdbc:sqlserver://localhost: 1433; database = QLSV";
     Connection conn;
+    String role = "";
 
     public Login() {
         initComponents();
@@ -49,19 +50,26 @@ public class Login extends javax.swing.JFrame {
     }
 
     protected boolean checkUse() {
-        String query = "SELECT * FROM USERS username = ?";
+        String query = "SELECT * FROM USERS WHERE username = ? AND password = ?";
         boolean check = false;
         try {
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet rs;
 
             ps.setString(1, txtUser.getText());
+            ps.setString(2, String.valueOf(txtPass.getPassword()));
+
+
             rs = ps.executeQuery();
-            while (rs.next()) {
+            if (rs.next()) {
                 check = true;
+                role = rs.getString("role");
+//                System.out.println(role);
+            } else {
+                JOptionPane.showMessageDialog(this, "username or password không đúng");
+                check = false;
             }
         } catch (SQLException ex) {
-            check = false;
             ex.printStackTrace();
         }
         return check;
@@ -165,13 +173,25 @@ public class Login extends javax.swing.JFrame {
 
     private void btnCannelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCannelActionPerformed
         // TODO add your handling code here:
+        System.exit(0);
     }//GEN-LAST:event_btnCannelActionPerformed
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
-        
+        if (checkNull() && checkUse()) {
+            if (role.equalsIgnoreCase("GV")) {
+                QLDSV form1 = new QLDSV();
+                form1.setVisible(true);
+                form1.setLocationRelativeTo(null);
+                this.dispose();
+            } else if (role.equalsIgnoreCase("CTSV")) {
+                QLSV form2 = new QLSV();
+                form2.setVisible(true);
+                form2.setLocationRelativeTo(null);
+                this.dispose();
+            }
+        }
     }//GEN-LAST:event_btnLoginActionPerformed
-    
 
     /**
      * @param args the command line arguments

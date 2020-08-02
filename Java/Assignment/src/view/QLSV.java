@@ -21,7 +21,7 @@ public class QLSV extends javax.swing.JFrame {
      */
     String user = "sa";
     String pass = "23082001";
-    String url = "jdbc:sqlserver://localhost: 143; database = QLSV";
+    String url = "jdbc:sqlserver://localhost: 1433; database = QLSV";
     Connection conn;
 
     public QLSV() {

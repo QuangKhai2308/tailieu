@@ -5,10 +5,19 @@
  */
 package view;
 
+import controller.QLD;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -21,13 +30,53 @@ public class QLDSV extends javax.swing.JFrame {
      */
     String user = "sa";
     String pass = "23082001";
-    String url = "jdbc:sqlserver://localhost: 143; database = QLSV";
+    String url = "jdbc:sqlserver://localhost: 1433; database = QLSV";
     Connection conn;
+    List<QLD> ListDSV = new ArrayList<>();
+    DefaultTableModel model;
+    int index;
 
     public QLDSV() {
         initComponents();
         setLocationRelativeTo(null);
         conn = getConnection();
+        ListDSV = fetchList();
+        renderList(ListDSV);
+
+    }
+
+    protected void renderList(List<QLD> list) {
+        model = (DefaultTableModel) tblListDSV.getModel();
+        model.setRowCount(0);
+        for (int i = 0; i < list.size(); i++) {
+            QLD x = list.get(i);
+            model.addRow(new Object[]{x.getMaSV(), x.getTenSV(), x.getTiengAnh(),
+                x.getTinHoc(), x.getGDTC()});
+        }
+    }
+
+    protected List<QLD> fetchList() {
+        List<QLD> list = new ArrayList<QLD>();
+        String query = "SELECT * FROM GRADE";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int ID = rs.getInt("ID");
+                String TenSV = rs.getNString("TenSV");
+                String MaSV = rs.getString("MaSV");
+                double TiengAnh = rs.getDouble("TiengAnh");
+                double TinHoc = rs.getDouble("TinHoc");
+                double GDTC = rs.getDouble("GDTC");
+
+                list.add(new QLD(ID, TenSV, MaSV, TiengAnh, TinHoc, GDTC));
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return list;
     }
 
     private Connection getConnection() {
@@ -83,7 +132,7 @@ public class QLDSV extends javax.swing.JFrame {
         btnLast = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tblListSV = new javax.swing.JTable();
+        tblListDSV = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -102,6 +151,11 @@ public class QLDSV extends javax.swing.JFrame {
         btnSearch.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         btnSearch.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/search.png"))); // NOI18N
         btnSearch.setText("Search");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -134,8 +188,10 @@ public class QLDSV extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel3.setText("Họ Tên SV");
 
+        txtHoTen.setEditable(false);
         txtHoTen.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
+        txtMaSV.setEditable(false);
         txtMaSV.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
@@ -144,8 +200,10 @@ public class QLDSV extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel5.setText("Tiếng Anh");
 
+        txtTiengAnh.setEditable(false);
         txtTiengAnh.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
+        txtTinHoc.setEditable(false);
         txtTinHoc.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
@@ -154,14 +212,16 @@ public class QLDSV extends javax.swing.JFrame {
         jLabel7.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel7.setText("GDTC");
 
+        txtGDTC.setEditable(false);
         txtGDTC.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(51, 0, 51));
         jLabel8.setText("Điểm TB");
 
-        lblTB.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        lblTB.setFont(new java.awt.Font("Tahoma", 1, 30)); // NOI18N
         lblTB.setForeground(new java.awt.Color(51, 0, 51));
+        lblTB.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -248,14 +308,32 @@ public class QLDSV extends javax.swing.JFrame {
         btnSave.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/save.png"))); // NOI18N
         btnSave.setText("Save");
+        btnSave.setEnabled(false);
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         btnDelete.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         btnDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/close.png"))); // NOI18N
         btnDelete.setText("Delete");
+        btnDelete.setEnabled(false);
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnUpdate.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         btnUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/pencil.png"))); // NOI18N
         btnUpdate.setText("Update");
+        btnUpdate.setEnabled(false);
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnFirst.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/fr.png"))); // NOI18N
 
@@ -274,8 +352,8 @@ public class QLDSV extends javax.swing.JFrame {
         jLabel9.setForeground(new java.awt.Color(51, 0, 51));
         jLabel9.setText("3 sinh viên có điểm cao nhất");
 
-        tblListSV.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        tblListSV.setModel(new javax.swing.table.DefaultTableModel(
+        tblListDSV.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        tblListDSV.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -291,7 +369,12 @@ public class QLDSV extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(tblListSV);
+        tblListDSV.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblListDSVMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblListDSV);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -358,9 +441,8 @@ public class QLDSV extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnFirst, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLast, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnNext, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(btnNext, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
@@ -392,7 +474,219 @@ public class QLDSV extends javax.swing.JFrame {
 
     private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
         // TODO add your handling code here:
+        unLock();
+        ClearForm();
     }//GEN-LAST:event_btnNewActionPerformed
+    protected boolean checkTK() {
+        if (txtTKMaSV.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Mã sinh viên chưa được nhập");
+            txtTKMaSV.requestFocus();
+            return false;
+        }
+        return true;
+    }
+    protected void FindSV(List<QLD> list) {
+        for (int i = 0; i < list.size(); i++) {
+            QLD x = list.get(i);
+            if (txtTKMaSV.getText().equalsIgnoreCase(x.getMaSV())) {
+                index = i;
+                ShowDetails();
+                tblListDSV.setRowSelectionInterval(index, index);
+                return;
+            }
+            
+        }
+    }
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        // TODO add your handling code here:
+        if (checkTK()) {
+            try {
+                String query = "SELECT * FROM GRADE WHERE MaSV = ?";
+                PreparedStatement ps = conn.prepareStatement(query);
+                ps.setString(1, txtTKMaSV.getText());
+                
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+//                    String MaSV = rs.getString("MaSv");
+                    FindSV(ListDSV);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Không tìm thấy kết quả ");
+                    txtTKMaSV.requestFocus();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+    }//GEN-LAST:event_btnSearchActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        if (checkNull() && checkDiem()) {
+            if (checkMaSV2() && checkMaSV1()) {
+                String query = "INSERT INTO GRADE(TenSV, MaSV, TiengAnh, TinHoc, GDTC)"
+                        + "OUTPUT INSERTED.ID VALUES(?, ?, ?, ?, ?)";
+                try {
+                    PreparedStatement ps = conn.prepareStatement(query);
+                    ps.setNString(1, txtHoTen.getText());
+                    ps.setString(2, txtMaSV.getText());
+                    ps.setDouble(3, Double.parseDouble(txtTiengAnh.getText()));
+                    ps.setDouble(4, Double.parseDouble(txtTinHoc.getText()));
+                    ps.setDouble(5, Double.parseDouble(txtGDTC.getText()));
+
+                    ps.execute();
+
+                    ListDSV = fetchList();
+                    renderList(ListDSV);
+                    ClearForm();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void tblListDSVMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblListDSVMouseClicked
+        // TODO add your handling code here:
+        index = tblListDSV.getSelectedRow();
+        txtTiengAnh.setEditable(true);
+        txtTinHoc.setEditable(true);
+        txtGDTC.setEditable(true);
+        if (index >= 0) {
+            ShowDetails();
+        }
+    }//GEN-LAST:event_tblListDSVMouseClicked
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        // TODO add your handling code here:
+
+        try {
+            index = tblListDSV.getSelectedRow();
+            if (index >= 0) {
+                String MaSV = tblListDSV.getValueAt(index, 0).toString();
+                String query = "DELETE FROM GRADE WHERE MaSV = ?";
+
+                PreparedStatement ps = conn.prepareStatement(query);
+                ps.setString(1, MaSV);
+                ps.execute();
+
+                Delete();
+                ListDSV = fetchList();
+                renderList(ListDSV);
+
+            } else if (ListDSV.size() == 0) {
+                JOptionPane.showMessageDialog(this, "Không còn dữ liệu để xóa");
+                return;
+            }
+        } catch (Exception e) {
+//            JOptionPane.showMessageDialog(this, "Vui lòng chọn dữ liệu để xóa");
+            e.printStackTrace();
+            return;
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+        index = tblListDSV.getSelectedRow();
+        String MaSV = tblListDSV.getValueAt(index, 0).toString();
+        String query = "UPDATE GRADE SET TiengAnh = ?, TinHoc = ?, GDTC = ? WHERE MaSV = ?";
+        if (index >= 0) {
+            if (checkNull() && checkDiem()) {
+                try {
+                    PreparedStatement ps = conn.prepareStatement(query);
+                    ps.setDouble(1, Double.parseDouble(txtTiengAnh.getText()));
+                    ps.setDouble(2, Double.parseDouble(txtTinHoc.getText()));
+                    ps.setDouble(3, Double.parseDouble(txtGDTC.getText()));
+                    ps.setString(4, MaSV);
+                    ps.execute();
+
+                    Update();
+                    renderList(ListDSV);
+                    ClearForm();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        }
+    }//GEN-LAST:event_btnUpdateActionPerformed
+    protected void Delete() {
+        index = tblListDSV.getSelectedRow();
+        ListDSV.remove(index);
+    }
+
+    protected void Update() {
+        index = tblListDSV.getSelectedRow();
+        String MaSV = tblListDSV.getValueAt(index, 0).toString();
+        String query = "SELECT * FROM GRADE WHERE MaSV = ?";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, MaSV);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int ID = rs.getInt("ID");
+                String TenSV = rs.getNString("TenSV");
+                MaSV = rs.getString("MaSV");
+                double TA = rs.getDouble("TiengAnh");
+                double TH = rs.getDouble("TinHoc");
+                double GDTC = rs.getDouble("GDTC");
+                ListDSV.set(index, new QLD(ID, TenSV, MaSV, TA, TH, GDTC));
+                System.out.println(ID +""+ MaSV+ "" + TH +"" + TA+ "" + GDTC);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    protected boolean checkMaSV1() {
+        String query = "SELECT * FROM GRADE WHERE GRADE.MaSV = ?";
+        boolean check = true;
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, txtMaSV.getText());
+            ps.execute();
+
+            ResultSet rs = ps.getResultSet();
+
+            if (rs.next()) {
+                JOptionPane.showMessageDialog(this, "Mã sinh viên đã tồn tại trong danh sách");
+                txtMaSV.requestFocus();
+                check = false;
+            } else {
+                check = true;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return check;
+    }
+
+    protected boolean checkMaSV2() {
+        String query = "SELECT * FROM STUDENTS WHERE STUDENTS.MaSV = ?";
+        boolean check = true;
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, txtMaSV.getText());
+            ps.execute();
+
+            ResultSet rs = ps.getResultSet();
+
+            if (rs.next()) {
+                check = true;
+            } else {
+                JOptionPane.showMessageDialog(this, "Mã sinh viên chưa được khởi tạo trong bảng DSSV");
+                txtMaSV.requestFocus();
+                check = false;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return check;
+    }
+
     protected boolean checkNull() {
         if (txtHoTen.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Họ tên sinh viên chưa được nhập");
@@ -525,7 +819,7 @@ public class QLDSV extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblTB;
-    private javax.swing.JTable tblListSV;
+    private javax.swing.JTable tblListDSV;
     private javax.swing.JTextField txtGDTC;
     private javax.swing.JTextField txtHoTen;
     private javax.swing.JTextField txtMaSV;
@@ -533,4 +827,42 @@ public class QLDSV extends javax.swing.JFrame {
     private javax.swing.JTextField txtTiengAnh;
     private javax.swing.JTextField txtTinHoc;
     // End of variables declaration//GEN-END:variables
+
+    private void ClearForm() {
+        txtHoTen.setText("");
+        txtMaSV.setText("");
+        txtTiengAnh.setText("");
+        txtTinHoc.setText("");
+        txtGDTC.setText("");
+        lblTB.setText("");
+    }
+
+    private void unLock() {
+        txtMaSV.setEditable(true);
+//        txtHoTen.setE/ditable(true);
+        txtTiengAnh.setEditable(true);
+        txtTinHoc.setEditable(true);
+        txtGDTC.setEditable(true);
+    }
+
+    private void ShowDetails() {
+//        index = tblListDSV.getSelectedRow();
+        QLD x = ListDSV.get(index);
+
+        txtHoTen.setText(x.getTenSV());
+        txtMaSV.setText(x.getMaSV());
+        txtTiengAnh.setText(x.getTiengAnh() + "");
+        txtTinHoc.setText(x.getTinHoc() + "");
+        txtGDTC.setText(x.getGDTC() + "");
+        btnSave.setEnabled(true);
+        btnDelete.setEnabled(true);
+        btnUpdate.setEnabled(true);
+
+        double d1 = Double.parseDouble(txtTiengAnh.getText());
+        double d2 = Double.parseDouble(txtTinHoc.getText());
+        double d3 = Double.parseDouble(txtGDTC.getText());
+        double tb = (d1 + d2 + d3) / 3;
+        DecimalFormat dcf = new DecimalFormat("#.##");
+        lblTB.setText(dcf.format(tb));
+    }
 }
