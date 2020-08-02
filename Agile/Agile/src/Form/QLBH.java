@@ -10,10 +10,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Locale;
 import javax.swing.JOptionPane;
 
 /**
@@ -30,20 +31,18 @@ public class QLBH extends javax.swing.JInternalFrame {
     String pass = "23082001";
     Connection conn;
     String url = "jdbc:sqlserver://localhost:1433;databaseName = QLBH";
-
+    Locale locale = new Locale("vi", "VN");
+    NumberFormat current = NumberFormat.getCurrencyInstance(locale);
+    
     public QLBH() {
         initComponents();
         conn = getConnection();
-        fetechMaNV();
-        fetchMaSP();
-        fetchTenSP();
-        fetchMauSac();
-        fetchSize();
-        cboMaNV.setSelectedIndex(-1);
-        cboMaSP.setSelectedIndex(-1);
-        cboMauSac.setSelectedIndex(-1);
-        cboSize.setSelectedIndex(-1);
-        cboTenSP.setSelectedIndex(-1);
+
+//        cboMaNV.setSelectedIndex(-1);
+//        cboMaSP.setSelectedIndex(-1);
+//        cboMauSac.setSelectedIndex(-1);
+//        cboSize.setSelectedIndex(-1);
+//        cboTenSP.setSelectedIndex(-1);
     }
 
     protected Connection getConnection() {
@@ -107,7 +106,7 @@ public class QLBH extends javax.swing.JInternalFrame {
         btnAdd = new javax.swing.JButton();
         btnIn = new javax.swing.JButton();
         btnXoa = new javax.swing.JButton();
-        btnHuy = new javax.swing.JButton();
+        btnSave = new javax.swing.JButton();
         btnThoat = new javax.swing.JButton();
         jPanel10 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -151,6 +150,11 @@ public class QLBH extends javax.swing.JInternalFrame {
 
         cboMaNV.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         cboMaNV.setEnabled(false);
+        cboMaNV.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cboMaNVItemStateChanged(evt);
+            }
+        });
         cboMaNV.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cboMaNVActionPerformed(evt);
@@ -294,6 +298,16 @@ public class QLBH extends javax.swing.JInternalFrame {
 
         cboMaSP.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         cboMaSP.setEnabled(false);
+        cboMaSP.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cboMaSPItemStateChanged(evt);
+            }
+        });
+        cboMaSP.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboMaSPActionPerformed(evt);
+            }
+        });
 
         cboTenSP.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         cboTenSP.setEnabled(false);
@@ -434,12 +448,12 @@ public class QLBH extends javax.swing.JInternalFrame {
         btnXoa.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/remove.png"))); // NOI18N
         btnXoa.setText("Xóa");
 
-        btnHuy.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
-        btnHuy.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/save.png"))); // NOI18N
-        btnHuy.setText("Lưu");
-        btnHuy.addActionListener(new java.awt.event.ActionListener() {
+        btnSave.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
+        btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/save.png"))); // NOI18N
+        btnSave.setText("Lưu");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnHuyActionPerformed(evt);
+                btnSaveActionPerformed(evt);
             }
         });
 
@@ -504,7 +518,7 @@ public class QLBH extends javax.swing.JInternalFrame {
                                         .addComponent(btnIn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addComponent(btnXoa, javax.swing.GroupLayout.Alignment.TRAILING))
                                     .addComponent(btnThoat)
-                                    .addComponent(btnHuy)))))
+                                    .addComponent(btnSave)))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(56, 56, 56)
                         .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -515,7 +529,7 @@ public class QLBH extends javax.swing.JInternalFrame {
                 .addContainerGap(51, Short.MAX_VALUE))
         );
 
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnAdd, btnHuy, btnIn, btnThoat, btnXoa});
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnAdd, btnIn, btnSave, btnThoat, btnXoa});
 
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -536,7 +550,7 @@ public class QLBH extends javax.swing.JInternalFrame {
                         .addGap(45, 45, 45)
                         .addComponent(btnXoa, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(45, 45, 45)
-                        .addComponent(btnHuy, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(45, 45, 45)
                         .addComponent(btnThoat, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -588,45 +602,162 @@ public class QLBH extends javax.swing.JInternalFrame {
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
+//        fetchTenSP();
+//        fetchMauSac();
+//        fetchSize();
+
         unEnditable();
+        fetechMaNV();
+        cboMaNV.setSelectedIndex(-1);
+        fetchMaSP();
+        cboMaSP.setSelectedIndex(-1);
         ClearForm();
+        cboMauSac.setSelectedIndex(-1);
+        cboSize.setSelectedIndex(-1);
+        cboTenSP.setSelectedIndex(-1);
     }//GEN-LAST:event_btnAddActionPerformed
 
-    private void cboMaNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboMaNVActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cboMaNVActionPerformed
-
-    private void btnHuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyActionPerformed
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
         try {
-            if (checkNull() && checkNgay() && checkSo() && checkSoDT()) {
+            if (checkNull() && checkNgay() && checkSoDT() && checkSo()) {
                 JOptionPane.showMessageDialog(this, "Thêm thành công");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }//GEN-LAST:event_btnHuyActionPerformed
-    protected void fetechMaNV() {
-        String query = "SELECT * FROM NHANVIEN";
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void cboMaNVItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboMaNVItemStateChanged
+        // TODO add your handling code here:
+//        String query = "SELECT * FROM NHANVIEN WHERE ID_NV = ?";
+//
+//        try {
+////            cboMaNV.removeAllItems();
+//            if (cboMaNV.getSelectedIndex() == -1) {
+//                return;
+//            } else {
+//                PreparedStatement ps = conn.prepareStatement(query);
+//                ps.setString(1, cboMaNV.getSelectedItem().toString());
+//
+//                ResultSet rs = ps.executeQuery();
+//                
+//                while (rs.next()) {
+//                    txtTenNV.setText(rs.getString("TEN_NV"));
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+    }//GEN-LAST:event_cboMaNVItemStateChanged
+
+    private void cboMaSPItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboMaSPItemStateChanged
+        // TODO add your handling code here:
+//        String query = "SELECT * FROM SANPHAM WHERE ID_SP = ?";
+//
+//        try {
+//            if (cboMaSP.getSelectedIndex() == -1) {
+//                return;
+//            } else {
+//                PreparedStatement ps = conn.prepareStatement(query);
+//                ps.setString(1, cboMaSP.getSelectedItem().toString());
+//
+//                ResultSet rs = ps.executeQuery();
+//                cboTenSP.removeAllItems();
+//                cboMauSac.removeAllItems();
+//                cboSize.removeAllItems();
+//                while (rs.next()) {
+//                    cboTenSP.addItem(rs.getNString("TEN_SP"));
+//                    cboMauSac.addItem(rs.getNString("MAUSAC"));
+//                    cboSize.addItem(rs.getInt("SIZE") + "");
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+    }//GEN-LAST:event_cboMaSPItemStateChanged
+
+    private void cboMaNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboMaNVActionPerformed
+        // TODO add your handling code here:
+        fill();
+    }//GEN-LAST:event_cboMaNVActionPerformed
+    private void fill() {
+        String query = "SELECT * FROM NHANVIEN WHERE ID_NV = ?";
 
         try {
-            PreparedStatement ps = conn.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-            
-            while (rs.next()) {
-                cboMaNV.addItem(rs.getString("ID_NV"));
+            if (cboMaNV.getSelectedIndex() == -1) {
+                return;
+            } else {
+                PreparedStatement ps = conn.prepareStatement(query);
+                ps.setString(1, cboMaNV.getSelectedItem().toString());
+
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    txtTenNV.setText(rs.getString("TEN_NV"));
+                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    private void cboMaSPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboMaSPActionPerformed
+        // TODO add your handling code here:
+        String query = "SELECT * FROM SANPHAM WHERE ID_SP = ?";
+
+        try {
+            cboTenSP.removeAllItems();
+            cboMauSac.removeAllItems();
+            cboSize.removeAllItems();
+            if (cboMaSP.getSelectedIndex() == -1) {
+                return;
+            } else {
+                PreparedStatement ps = conn.prepareStatement(query);
+                ps.setString(1, cboMaSP.getSelectedItem().toString());
+
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+//                    DecimalFormat dcf = new DecimalFormat("###,###");
+                    long Gia = rs.getLong("GIABAN");
+                    cboTenSP.addItem(rs.getNString("TEN_SP"));
+                    cboMauSac.addItem(rs.getNString("MAUSAC"));
+                    cboSize.addItem(rs.getInt("SIZE") + "");
+                    txtGiaSP.setText(Gia + "");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_cboMaSPActionPerformed
+    protected void fetechMaNV() {
+        String query = "SELECT ID_NV FROM NHANVIEN";
+
+        try {
+
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            cboMaNV.removeAllItems();
+            while (rs.next()) {
+                cboMaNV.addItem(rs.getString("ID_NV"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     protected void fetchMaSP() {
         String query = "SELECT * FROM SANPHAM";
 
         try {
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
-            
+            cboMaSP.removeAllItems();
             while (rs.next()) {
                 cboMaSP.addItem(rs.getString("ID_SP"));
             }
@@ -634,13 +765,14 @@ public class QLBH extends javax.swing.JInternalFrame {
             e.printStackTrace();
         }
     }
+
     protected void fetchTenSP() {
         String query = "SELECT * FROM SANPHAM";
 
         try {
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 cboTenSP.addItem(rs.getString("Ten_SP"));
             }
@@ -648,13 +780,14 @@ public class QLBH extends javax.swing.JInternalFrame {
             e.printStackTrace();
         }
     }
+
     protected void fetchMauSac() {
         String query = "SELECT * FROM SANPHAM";
 
         try {
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 cboMauSac.addItem(rs.getString("MAUSAC"));
             }
@@ -662,13 +795,14 @@ public class QLBH extends javax.swing.JInternalFrame {
             e.printStackTrace();
         }
     }
+
     protected void fetchSize() {
         String query = "SELECT * FROM SANPHAM";
 
         try {
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
-            
+
             while (rs.next()) {
                 cboSize.addItem(rs.getString("SIZE"));
             }
@@ -676,6 +810,7 @@ public class QLBH extends javax.swing.JInternalFrame {
             e.printStackTrace();
         }
     }
+
     private boolean checkNull() {
         if (txtMaHD.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Mã hóa đơn chưa được nhập", "Text Empty", JOptionPane.ERROR_MESSAGE);
@@ -853,8 +988,8 @@ public class QLBH extends javax.swing.JInternalFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
-    private javax.swing.JButton btnHuy;
     private javax.swing.JButton btnIn;
+    private javax.swing.JButton btnSave;
     private javax.swing.JButton btnThoat;
     private javax.swing.JButton btnXoa;
     private javax.swing.JComboBox<String> cboMaNV;
@@ -899,19 +1034,23 @@ public class QLBH extends javax.swing.JInternalFrame {
     // End of variables declaration//GEN-END:variables
     private void ClearForm() {
         txtNgayBan.setText("");
-        cboMaNV.setSelectedIndex(-1);
         txtTenNV.setText("");
         txtMaKH.setText("");
         txtTenKH.setText("");
         txtSDT.setText("");
 
-        cboMaSP.setSelectedIndex(-1);
-        cboTenSP.setSelectedIndex(-1);
         txtGiaSP.setText("");
         txtSoLuong.setText("");
-        cboMauSac.setSelectedIndex(-1);
         txtGiamGia.setText("");
-        cboSize.setSelectedIndex(-1);
         txtThanhTien.setText("");
+
+//        cboSize.setSelectedIndex(-1);
+//        cboMauSac.setSelectedIndex(-1);
+//        cboMaNV.setSelectedIndex(-1);
+//        cboMaSP.setSelectedIndex(-1);
+//        cboTenSP.setSelectedIndex(-1);
+//        cboMaSP.removeAllItems();
+//        cboTenSP.removeAllItems();
+//        cboMaNV.removeAllItems();
     }
 }
