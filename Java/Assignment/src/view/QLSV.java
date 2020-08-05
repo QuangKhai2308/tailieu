@@ -5,15 +5,21 @@
  */
 package view;
 
+import controller.SinhVien;
 import java.awt.Image;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -29,10 +35,17 @@ public class QLSV extends javax.swing.JFrame {
     String url = "jdbc:sqlserver://localhost: 1433; database = QLSV";
     Connection conn;
     String link = "";
+    List<SinhVien> ListSV = new ArrayList<>();
+    DefaultTableModel model;
+    int index;
+
     public QLSV() {
         initComponents();
         setLocationRelativeTo(null);
         conn = getConnection();
+
+        ListSV = fetchList();
+        renderForm(ListSV);
     }
 
     private Connection getConnection() {
@@ -48,59 +61,67 @@ public class QLSV extends javax.swing.JFrame {
         }
         return conn;
     }
+
     protected boolean checkNull() {
         if (txtMaSV.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Mã sinh viên chưa được nhập");
             txtMaSV.requestFocus();
             return false;
-        } else if (txtHoTen.getText().isEmpty()){
+        } else if (txtHoTen.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Họ tên sinh viên chưa được nhập");
             txtHoTen.requestFocus();
             return false;
-        } else if (txtEmail.getText().isEmpty()){
+        } else if (txtEmail.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Email sinh viên chưa được nhập");
             txtEmail.requestFocus();
             return false;
-        } else if (txtSDT.getText().isEmpty()){
+        } else if (txtSDT.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Số điện thoại sinh viên chưa được nhập");
             txtSDT.requestFocus();
             return false;
-        } else if (!rdoNam.isSelected() && !rdoNu.isSelected()){
+        } else if (!rdoNam.isSelected() && !rdoNu.isSelected()) {
             JOptionPane.showMessageDialog(this, "Giới tính sinh viên chưa được chọn");
             return false;
-        } else if (txtDiaChi.getText().isEmpty()){
+        } else if (txtDiaChi.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Địa chỉ sinh viên chưa được nhập");
             txtDiaChi.requestFocus();
             return false;
-        } else if (lblLink.getText().isEmpty()){
+        } else if (lblLink.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ảnh sinh viên chưa được tải lên");
             btnTaiLen.requestFocus();
             return false;
-        } 
+        }
         return true;
     }
+
     private boolean checkEmail() {
-        String Email = "\\w+@\\w+(\\. \\w+){1,2}";
+        String Email = "\\w+@\\w+(\\.\\w+){1,2}";
         boolean check = false;
-        
         if (!txtEmail.getText().matches(Email)) {
             JOptionPane.showMessageDialog(this, "Email không đúng định dạng");
             txtEmail.requestFocus();
+            check = false;
+        } else {
             check = true;
         }
         return check;
     }
+
     private boolean checkSDT() {
         String SDT = "0\\d{9}";
         boolean check = false;
-        
+
         if (!txtSDT.getText().matches(SDT)) {
             JOptionPane.showMessageDialog(this, "Số điện không đúng định dạng");
             txtSDT.requestFocus();
+            check = false;
+        } else {
             check = true;
         }
+
         return check;
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -231,6 +252,11 @@ public class QLSV extends javax.swing.JFrame {
         btnDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/close.png"))); // NOI18N
         btnDelete.setText("Delete");
         btnDelete.setEnabled(false);
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnSave.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/save.png"))); // NOI18N
@@ -246,6 +272,11 @@ public class QLSV extends javax.swing.JFrame {
         btnUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/pencil.png"))); // NOI18N
         btnUpdate.setText("Update");
         btnUpdate.setEnabled(false);
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         tblListSV.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -261,6 +292,11 @@ public class QLSV extends javax.swing.JFrame {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        tblListSV.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblListSVMouseClicked(evt);
             }
         });
         jScrollPane2.setViewportView(tblListSV);
@@ -284,27 +320,26 @@ public class QLSV extends javax.swing.JFrame {
                                 .addGap(37, 37, 37)
                                 .addComponent(rdoNu))
                             .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtSDT))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtEmail))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtHoTen))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtMaSV, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtSDT))
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtEmail))
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtHoTen))
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(txtMaSV, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(18, 18, 18)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(26, 26, 26)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btnTaiLen)
                             .addComponent(lblLink, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -314,7 +349,7 @@ public class QLSV extends javax.swing.JFrame {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(btnDelete, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(btnNew, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(btnUpdate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
@@ -328,6 +363,8 @@ public class QLSV extends javax.swing.JFrame {
         );
 
         jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnDelete, btnNew, btnSave, btnUpdate});
+
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jScrollPane1, txtEmail, txtHoTen, txtMaSV, txtSDT});
 
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -411,12 +448,13 @@ public class QLSV extends javax.swing.JFrame {
         rdoNam.setEnabled(true);
         rdoNu.setEnabled(true);
         txtDiaChi.setEditable(true);
-        
+
         btnTaiLen.setEnabled(true);
         btnSave.setEnabled(true);
         btnDelete.setEnabled(true);
         btnUpdate.setEnabled(true);
     }
+
     private void ClearForm() {
         txtMaSV.setText("");
         txtHoTen.setText("");
@@ -435,23 +473,49 @@ public class QLSV extends javax.swing.JFrame {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
-        if (checkNull() && checkEmail() && checkSDT()) {
-            
+        if (checkNull() && checkEmail() && checkSDT() && checkMaSV()) {
+            try {
+                String gt = "";
+                String query = "INSERT INTO STUDENTS(MaSV, HoTen, Email, SoDT, GioiTinh,"
+                        + "DiaChi, Images) OUTPUT INSERTED.MaSV VALUES(?, ?, ?, ?, ?, ?, ?)";
+                PreparedStatement ps = conn.prepareStatement(query);
+                ps.setString(1, txtMaSV.getText());
+                ps.setNString(2, txtHoTen.getText());
+                ps.setString(3, txtEmail.getText());
+                ps.setString(4, txtSDT.getText());
+                if (rdoNam.isSelected()) {
+                    gt = "Nam";
+                } else if (rdoNu.isSelected()) {
+                    gt = "Nữ";
+                }
+                ps.setString(5, gt);
+                ps.setNString(6, txtDiaChi.getText());
+                ps.setString(7, lblLink.getText());
+
+                ps.executeQuery();
+
+                ListSV = fetchList();
+                renderForm(ListSV);
+                ClearForm();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnTaiLenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTaiLenActionPerformed
         // TODO add your handling code here:
         JFileChooser jc = null;
-        
+
         try {
             jc = new JFileChooser();
             jc.setCurrentDirectory(new File(System.getProperty("user.dir")));
             FileNameExtensionFilter extion = new FileNameExtensionFilter("*Images", "jpg", "png", "jpeg");
             jc.addChoosableFileFilter(extion);
-            
+
             int select = jc.showOpenDialog(this);
-            
+
             if (select == JFileChooser.APPROVE_OPTION) {
                 link = jc.getSelectedFile().getAbsolutePath();
                 ImageIcon icon = new ImageIcon(link);
@@ -459,12 +523,142 @@ public class QLSV extends javax.swing.JFrame {
                 Image new_img = img.getScaledInstance(lblImage.getWidth(), lblImage.getHeight(), Image.SCALE_SMOOTH);
                 ImageIcon new_icon = new ImageIcon(new_img);
                 lblImage.setIcon(new_icon);
-                
+
                 lblLink.setText(link);
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }//GEN-LAST:event_btnTaiLenActionPerformed
+
+    private void tblListSVMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblListSVMouseClicked
+        // TODO add your handling code here:
+        index = tblListSV.getSelectedRow();
+        if (index >= 0) {
+            ShowDetails();
+            unLock();
+        }
+    }//GEN-LAST:event_tblListSVMouseClicked
+    protected void Update() {
+        SinhVien sv = ListSV.get(index);
+        String MaSV = txtMaSV.getText();
+        String HoTen = txtHoTen.getText();
+        String Email = txtEmail.getText();
+        String SDT = txtSDT.getText();
+        String GT = "";
+        if (rdoNam.isSelected()) {
+            GT = "Nam";
+        } else {
+            GT = "Nữ";
+        }
+        String DiaChi = txtDiaChi.getText();
+        String Link = lblLink.getText();
+        ListSV.set(index, new SinhVien(MaSV, HoTen, Email, SDT, GT, DiaChi, Link));
+    }
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+        String query = "UPDATE STUDENTS SET HoTen = ?, Email = ?, SoDT = ?, GioiTinh = ?,"
+                + "DiaChi = ?, Images = ? WHERE MaSV = ?";
+        index = tblListSV.getSelectedRow();
+        String MaSV = tblListSV.getValueAt(index, 0).toString();
+        String GT = "";
+        if (checkNull() && checkEmail() & checkSDT()) {
+            try {
+                PreparedStatement ps = conn.prepareStatement(query);
+                ps.setNString(1, txtHoTen.getText());
+                ps.setString(2, txtEmail.getText());
+                ps.setString(3, txtSDT.getText());
+                if (rdoNam.isSelected()) {
+                    GT = "Nam";
+                } else {
+                    GT = "Nữ";
+                }
+                ps.setNString(4, GT);
+                ps.setString(5, txtDiaChi.getText());
+                ps.setString(6, lblLink.getText());
+                ps.setString(7, MaSV);
+
+                ps.execute();
+                JOptionPane.showMessageDialog(this, "Update thành công");
+                Update();
+                renderForm(ListSV);
+                tblListSV.setRowSelectionInterval(index, index);
+                ClearForm();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        // TODO add your handling code here:
+        index = tblListSV.getSelectedRow();
+        String query = "DELETE FROM STUDENTS WHERE MaSV = ?";
+        String MaSV = tblListSV.getValueAt(index, 0).toString();
+        
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, MaSV);
+            ps.execute();
+            
+            Delete();
+            renderForm(ListSV);
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+    protected void renderForm(List<SinhVien> sv) {
+        model = (DefaultTableModel) tblListSV.getModel();
+        model.setRowCount(0);
+
+        for (int i = 0; i < sv.size(); i++) {
+            SinhVien x = sv.get(i);
+            model.addRow(new Object[]{x.getMaSV(), x.getHoTen(), x.getEmail(),
+                x.getSoDT(), x.getGT(), x.getDiaChi(), x.getImages()});
+        }
+    }
+    protected void Delete() {
+        index = tblListSV.getSelectedRow();
+        ListSV.remove(index);
+    }
+    protected boolean checkMaSV() {   
+        boolean check = false;
+        for (int i = 0; i < ListSV.size(); i++) {
+            SinhVien x = ListSV.get(i);
+            if (txtMaSV.getText().equalsIgnoreCase(x.getMaSV())) {
+                JOptionPane.showMessageDialog(this, "Mã sinh viên đã tồn tại");
+                txtMaSV.requestFocus();
+                check = false;
+            } else {
+                check = true;
+            }
+        }
+        return check;
+    }
+    protected List<SinhVien> fetchList() {
+        List<SinhVien> list = new ArrayList<>();
+        String query = "SELECT * FROM STUDENTS";
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String MaSV = rs.getString("MaSV");
+                String HoTen = rs.getNString("HoTen");
+                String Email = rs.getString("Email");
+                String SDT = rs.getString("SoDT");
+                String GT = rs.getNString("GioiTinh");
+                String DiaChi = rs.getString("DiaChi");
+                String Images = rs.getString("Images");
+
+                list.add(new SinhVien(MaSV, HoTen, Email, SDT, GT, DiaChi, Images));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
     /**
      * @param args the command line arguments
@@ -480,16 +674,24 @@ public class QLSV extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(QLSV.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(QLSV.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(QLSV.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(QLSV.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(QLSV.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(QLSV.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(QLSV.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(QLSV.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -531,4 +733,24 @@ public class QLSV extends javax.swing.JFrame {
     private javax.swing.JTextField txtMaSV;
     private javax.swing.JTextField txtSDT;
     // End of variables declaration//GEN-END:variables
+
+//    protected void unLock() {
+//        txtMaSV.setEditable(true);
+//    }
+    protected void ShowDetails() {
+        SinhVien sv = ListSV.get(index);
+
+        txtMaSV.setText(sv.getMaSV());
+        txtHoTen.setText(sv.getHoTen());
+        txtEmail.setText(sv.getEmail());
+        txtSDT.setText(sv.getSoDT());
+        if (sv.getGT().equalsIgnoreCase("Nam")) {
+            rdoNam.setSelected(true);
+        } else {
+            rdoNu.setSelected(true);
+        }
+        txtDiaChi.setText(sv.getDiaChi());
+        lblImage.setIcon(new ImageIcon(new ImageIcon(sv.getImages()).getImage().getScaledInstance(lblImage.getWidth(), lblImage.getHeight(), Image.SCALE_SMOOTH)));
+        lblLink.setText(sv.getImages());
+    }
 }

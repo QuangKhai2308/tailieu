@@ -28,13 +28,14 @@ public class QLDSV extends javax.swing.JFrame {
     /**
      * Creates new form QLSV
      */
+    int i = 0;
     String user = "sa";
     String pass = "23082001";
     String url = "jdbc:sqlserver://localhost: 1433; database = QLSV";
     Connection conn;
     List<QLD> ListDSV = new ArrayList<>();
     DefaultTableModel model;
-    int index;
+    int index = -1;
 
     public QLDSV() {
         initComponents();
@@ -50,27 +51,31 @@ public class QLDSV extends javax.swing.JFrame {
         model.setRowCount(0);
         for (int i = 0; i < list.size(); i++) {
             QLD x = list.get(i);
+            DecimalFormat dcf = new DecimalFormat("#.##");
             model.addRow(new Object[]{x.getMaSV(), x.getTenSV(), x.getTiengAnh(),
-                x.getTinHoc(), x.getGDTC()});
+                x.getTinHoc(), x.getGDTC(), dcf.format(x.getDTB())});
         }
     }
 
     protected List<QLD> fetchList() {
         List<QLD> list = new ArrayList<QLD>();
-        String query = "SELECT * FROM GRADE";
+        String query = "SELECT TOP 3 ID, GRADE.MaSV, HoTen, TiengAnh, TinHoc, GDTC FROM GRADE INNER JOIN STUDENTS ON STUDENTS.MaSV = GRADE.MaSV\n"
+                + "GROUP BY ID, GRADE.MaSV, HoTen, TiengAnh, TinHoc, GDTC \n"
+                + "ORDER BY AVG(TiengAnh + TinHoc + GDTC) DESC";
 
         try {
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                int ID = rs.getInt("ID");
-                String TenSV = rs.getNString("TenSV");
-                String MaSV = rs.getString("MaSV");
-                double TiengAnh = rs.getDouble("TiengAnh");
-                double TinHoc = rs.getDouble("TinHoc");
-                double GDTC = rs.getDouble("GDTC");
-
-                list.add(new QLD(ID, TenSV, MaSV, TiengAnh, TinHoc, GDTC));
+                int ID = rs.getInt(1);
+                String MaSV = rs.getString(2);
+                String TenSV = rs.getNString(3);
+                double TiengAnh = rs.getDouble(4);
+                double TinHoc = rs.getDouble(5);
+                double GDTC = rs.getDouble(6);
+                double DTB = (TiengAnh + TinHoc + GDTC) / 3;
+//                DecimalFormat dcf = new DecimalFormat("#.##");
+                list.add(new QLD(ID, MaSV, TenSV, TiengAnh, TinHoc, GDTC, DTB));
             }
 
         } catch (SQLException ex) {
@@ -111,7 +116,6 @@ public class QLDSV extends javax.swing.JFrame {
         btnSearch = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        txtHoTen = new javax.swing.JTextField();
         txtMaSV = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -122,6 +126,7 @@ public class QLDSV extends javax.swing.JFrame {
         txtGDTC = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         lblTB = new javax.swing.JLabel();
+        lblHoTen = new javax.swing.JLabel();
         btnNew = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
@@ -188,9 +193,6 @@ public class QLDSV extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel3.setText("Họ Tên SV");
 
-        txtHoTen.setEditable(false);
-        txtHoTen.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-
         txtMaSV.setEditable(false);
         txtMaSV.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
@@ -223,6 +225,9 @@ public class QLDSV extends javax.swing.JFrame {
         lblTB.setForeground(new java.awt.Color(51, 0, 51));
         lblTB.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
+        lblHoTen.setFont(new java.awt.Font("Tahoma", 3, 18)); // NOI18N
+        lblHoTen.setForeground(new java.awt.Color(51, 0, 51));
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -237,7 +242,7 @@ public class QLDSV extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtMaSV, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtHoTen, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(lblHoTen, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -262,9 +267,9 @@ public class QLDSV extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtHoTen, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblHoTen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtMaSV, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -285,7 +290,7 @@ public class QLDSV extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtGDTC, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel7))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         jPanel3Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jLabel4, txtMaSV});
@@ -336,6 +341,11 @@ public class QLDSV extends javax.swing.JFrame {
         });
 
         btnFirst.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/fr.png"))); // NOI18N
+        btnFirst.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFirstActionPerformed(evt);
+            }
+        });
 
         btnBack.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/backward.png"))); // NOI18N
         btnBack.addActionListener(new java.awt.event.ActionListener() {
@@ -345,8 +355,18 @@ public class QLDSV extends javax.swing.JFrame {
         });
 
         btnNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/nextwa.png"))); // NOI18N
+        btnNext.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNextActionPerformed(evt);
+            }
+        });
 
         btnLast.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/next.png"))); // NOI18N
+        btnLast.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLastActionPerformed(evt);
+            }
+        });
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 2, 18)); // NOI18N
         jLabel9.setForeground(new java.awt.Color(51, 0, 51));
@@ -358,11 +378,11 @@ public class QLDSV extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Mã SV", "Họ Tên", "Tiếng Anh", "Tin Học", "GDTC"
+                "Mã SV", "Họ Tên", "Tiếng Anh", "Tin Học", "GDTC", "Điểm TB"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -375,6 +395,9 @@ public class QLDSV extends javax.swing.JFrame {
             }
         });
         jScrollPane1.setViewportView(tblListDSV);
+        if (tblListDSV.getColumnModel().getColumnCount() > 0) {
+            tblListDSV.getColumnModel().getColumn(1).setHeaderValue("Họ Tên");
+        }
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -470,6 +493,12 @@ public class QLDSV extends javax.swing.JFrame {
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         // TODO add your handling code here:
+        index--;
+        if (index < 0) {
+            index = ListDSV.size() - 1;
+        }
+        ShowDetails();
+        tblListDSV.setRowSelectionInterval(index, index);
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
@@ -485,6 +514,7 @@ public class QLDSV extends javax.swing.JFrame {
         }
         return true;
     }
+
     protected void FindSV(List<QLD> list) {
         for (int i = 0; i < list.size(); i++) {
             QLD x = list.get(i);
@@ -494,21 +524,40 @@ public class QLDSV extends javax.swing.JFrame {
                 tblListDSV.setRowSelectionInterval(index, index);
                 return;
             }
-            
+
         }
     }
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
         // TODO add your handling code here:
         if (checkTK()) {
             try {
-                String query = "SELECT * FROM GRADE WHERE MaSV = ?";
+                String query = "SELECT GRADE.MaSV, HoTen, TiengAnh,"
+                        + "TinHoc, GDTC FROM GRADE INNER JOIN STUDENTS"
+                        + " ON STUDENTS.MaSV = GRADE.MaSV WHERE GRADE.MaSV = ?";
                 PreparedStatement ps = conn.prepareStatement(query);
                 ps.setString(1, txtTKMaSV.getText());
-                
+
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
 //                    String MaSV = rs.getString("MaSv");
-                    FindSV(ListDSV);
+                   btnSave.setEnabled(true);
+                   btnDelete.setEnabled(true);
+                   btnUpdate.setEnabled(true);
+                   txtTiengAnh.setEditable(true);
+                   txtTinHoc.setEditable(true);
+                   txtGDTC.setEditable(true);
+                   
+                   txtMaSV.setText(rs.getString(1));
+                   lblHoTen.setText(rs.getNString(2));
+                   txtTiengAnh.setText(rs.getDouble(3) +"");
+                   txtTinHoc.setText(rs.getDouble(4) + "");
+                   txtGDTC.setText(rs.getDouble(5) + "");
+                   double DTB = (Double.parseDouble(txtTiengAnh.getText()) + 
+                           Double.parseDouble(txtTinHoc.getText()) + 
+                           Double.parseDouble(txtGDTC.getText())) / 3;
+                   DecimalFormat dcf = new DecimalFormat("#.##");
+                   lblTB.setText(dcf.format(DTB));
+//                    FindSV(ListDSV);
                 } else {
                     JOptionPane.showMessageDialog(this, "Không tìm thấy kết quả ");
                     txtTKMaSV.requestFocus();
@@ -528,7 +577,7 @@ public class QLDSV extends javax.swing.JFrame {
                         + "OUTPUT INSERTED.ID VALUES(?, ?, ?, ?, ?)";
                 try {
                     PreparedStatement ps = conn.prepareStatement(query);
-                    ps.setNString(1, txtHoTen.getText());
+                    ps.setNString(1, lblHoTen.getText());
                     ps.setString(2, txtMaSV.getText());
                     ps.setDouble(3, Double.parseDouble(txtTiengAnh.getText()));
                     ps.setDouble(4, Double.parseDouble(txtTinHoc.getText()));
@@ -561,9 +610,9 @@ public class QLDSV extends javax.swing.JFrame {
         // TODO add your handling code here:
 
         try {
-            index = tblListDSV.getSelectedRow();
+//            index = tblListDSV.getSelectedRow();
             if (index >= 0) {
-                String MaSV = tblListDSV.getValueAt(index, 0).toString();
+                String MaSV = txtMaSV.getText();
                 String query = "DELETE FROM GRADE WHERE MaSV = ?";
 
                 PreparedStatement ps = conn.prepareStatement(query);
@@ -587,9 +636,9 @@ public class QLDSV extends javax.swing.JFrame {
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
-        index = tblListDSV.getSelectedRow();
-        String MaSV = tblListDSV.getValueAt(index, 0).toString();
-        String query = "UPDATE GRADE SET TiengAnh = ?, TinHoc = ?, GDTC = ? WHERE MaSV = ?";
+//        index = tblListDSV.getSelectedRow();
+        String MaSV = txtMaSV.getText();
+        String query = "UPDATE GRADE SET TiengAnh = ?, TinHoc = ?, GDTC = ? WHERE GRADE.MaSV = ?";
         if (index >= 0) {
             if (checkNull() && checkDiem()) {
                 try {
@@ -600,7 +649,8 @@ public class QLDSV extends javax.swing.JFrame {
                     ps.setString(4, MaSV);
                     ps.execute();
 
-                    Update();
+//                    Update();
+                    ListDSV = fetchList();
                     renderList(ListDSV);
                     ClearForm();
                 } catch (Exception e) {
@@ -610,6 +660,30 @@ public class QLDSV extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnFirstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFirstActionPerformed
+        // TODO add your handling code here:
+        index = 0;
+        ShowDetails();
+        tblListDSV.setRowSelectionInterval(index, index);
+    }//GEN-LAST:event_btnFirstActionPerformed
+
+    private void btnNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextActionPerformed
+        // TODO add your handling code here:
+        index++;
+        if (index >= ListDSV.size()) {
+            index = 0;
+        }
+        ShowDetails();
+        tblListDSV.setRowSelectionInterval(index, index);
+    }//GEN-LAST:event_btnNextActionPerformed
+
+    private void btnLastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLastActionPerformed
+        // TODO add your handling code here:
+        index = ListDSV.size() - 1;
+        ShowDetails();
+        tblListDSV.setRowSelectionInterval(index, index);
+    }//GEN-LAST:event_btnLastActionPerformed
     protected void Delete() {
         index = tblListDSV.getSelectedRow();
         ListDSV.remove(index);
@@ -618,7 +692,8 @@ public class QLDSV extends javax.swing.JFrame {
     protected void Update() {
         index = tblListDSV.getSelectedRow();
         String MaSV = tblListDSV.getValueAt(index, 0).toString();
-        String query = "SELECT * FROM GRADE WHERE MaSV = ?";
+        String query = "SELECT TOP 3 ID, STUDENTS.MaSV, HoTen, TiengAnh, TinHoc, GDTC FROM "
+                + "GRADE INNER JOIN STUDENTS ON GRADE.MaSV = STUDENTS.MaSV WHERE GRADE.MaSV = ?";
 
         try {
             PreparedStatement ps = conn.prepareStatement(query);
@@ -626,14 +701,16 @@ public class QLDSV extends javax.swing.JFrame {
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                int ID = rs.getInt("ID");
-                String TenSV = rs.getNString("TenSV");
-                MaSV = rs.getString("MaSV");
-                double TA = rs.getDouble("TiengAnh");
-                double TH = rs.getDouble("TinHoc");
-                double GDTC = rs.getDouble("GDTC");
-                ListDSV.set(index, new QLD(ID, TenSV, MaSV, TA, TH, GDTC));
-                System.out.println(ID +""+ MaSV+ "" + TH +"" + TA+ "" + GDTC);
+                int ID = rs.getInt(1);
+                MaSV = rs.getString(2);
+                String TenSV = rs.getNString(3);
+                double TA = rs.getDouble(4);
+                double TH = rs.getDouble(5);
+                double GDTC = rs.getDouble(6);
+
+                double DTB = (TA + TH + GDTC) / 3;
+                ListDSV.set(index, new QLD(ID, MaSV, TenSV, TA, TH, GDTC, DTB));
+//                System.out.println(ID + "" + MaSV + "" + TH + "" + TA + "" + GDTC);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -688,11 +765,12 @@ public class QLDSV extends javax.swing.JFrame {
     }
 
     protected boolean checkNull() {
-        if (txtHoTen.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Họ tên sinh viên chưa được nhập");
-            txtHoTen.requestFocus();
-            return false;
-        } else if (txtMaSV.getText().isEmpty()) {
+//        if (txtHoTen.getText().isEmpty()) {
+//            JOptionPane.showMessageDialog(this, "Họ tên sinh viên chưa được nhập");
+//            txtHoTen.requestFocus();
+//            return false;
+//        } 
+        if (txtMaSV.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Mã sinh viên chưa được nhập");
             txtMaSV.requestFocus();
             return false;
@@ -818,10 +896,10 @@ public class QLDSV extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblHoTen;
     private javax.swing.JLabel lblTB;
     private javax.swing.JTable tblListDSV;
     private javax.swing.JTextField txtGDTC;
-    private javax.swing.JTextField txtHoTen;
     private javax.swing.JTextField txtMaSV;
     private javax.swing.JTextField txtTKMaSV;
     private javax.swing.JTextField txtTiengAnh;
@@ -829,7 +907,7 @@ public class QLDSV extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void ClearForm() {
-        txtHoTen.setText("");
+//        txtHoTen.setText("");
         txtMaSV.setText("");
         txtTiengAnh.setText("");
         txtTinHoc.setText("");
@@ -849,7 +927,7 @@ public class QLDSV extends javax.swing.JFrame {
 //        index = tblListDSV.getSelectedRow();
         QLD x = ListDSV.get(index);
 
-        txtHoTen.setText(x.getTenSV());
+        lblHoTen.setText(x.getTenSV());
         txtMaSV.setText(x.getMaSV());
         txtTiengAnh.setText(x.getTiengAnh() + "");
         txtTinHoc.setText(x.getTinHoc() + "");

@@ -98,6 +98,8 @@ public class Login extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        cboCheckPass = new javax.swing.JCheckBox();
+        jLabel5 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         txtUser = new javax.swing.JTextField();
@@ -110,6 +112,17 @@ public class Login extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        cboCheckPass.setPreferredSize(new java.awt.Dimension(30, 50));
+        cboCheckPass.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboCheckPassActionPerformed(evt);
+            }
+        });
+        jPanel1.add(cboCheckPass, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 295, 20, 20));
+
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/london-eye.png"))); // NOI18N
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 290, 30, 30));
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/us.png"))); // NOI18N
@@ -128,12 +141,12 @@ public class Login extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 20)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Password");
-        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 210, 110, 40));
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 200, 110, 40));
 
         txtPass.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         txtPass.setForeground(new java.awt.Color(44, 71, 92));
         txtPass.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jPanel1.add(txtPass, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 250, 370, 40));
+        jPanel1.add(txtPass, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 240, 370, 40));
 
         btnCannel.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         btnCannel.setText("Cannel");
@@ -193,6 +206,15 @@ public class Login extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnLoginActionPerformed
 
+    private void cboCheckPassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboCheckPassActionPerformed
+        // TODO add your handling code here:
+        if (cboCheckPass.isSelected()) {
+            txtPass.setEchoChar((char)0);
+        } else {
+            txtPass.setEchoChar('*');
+        }
+    }//GEN-LAST:event_cboCheckPassActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -231,10 +253,12 @@ public class Login extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCannel;
     private javax.swing.JButton btnLogin;
+    private javax.swing.JCheckBox cboCheckPass;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPasswordField txtPass;
     private javax.swing.JTextField txtUser;

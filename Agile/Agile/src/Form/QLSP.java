@@ -267,14 +267,17 @@ public class QLSP extends javax.swing.JInternalFrame {
         cboSize.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         cboSize.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "38", "39", "40", "41", "42", "43", "44", "45" }));
         cboSize.setSelectedIndex(-1);
+        cboSize.setEnabled(false);
 
         cboTrangThai.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         cboTrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Đã về", "Chưa về" }));
         cboTrangThai.setSelectedIndex(-1);
+        cboTrangThai.setEnabled(false);
 
         cboLoaiSP.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        cboLoaiSP.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Nike", "Adidas", "Converse", "Balenciaga", "New Balance", "Puma", "Vans", "Gucci", "Reebok", "Alexander MC Queen" }));
+        cboLoaiSP.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Converse", "Balenciaga", "Vans", "Adidas", "Alexander MC Queen" }));
         cboLoaiSP.setSelectedIndex(-1);
+        cboLoaiSP.setEnabled(false);
 
         javax.swing.GroupLayout panelLayout = new javax.swing.GroupLayout(panel);
         panel.setLayout(panelLayout);
@@ -569,23 +572,34 @@ public class QLSP extends javax.swing.JInternalFrame {
     private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
         // TODO add your handling code here:
         String MaSP = JOptionPane.showInputDialog(this, "Mã sản phẩm: ", "Tìm kiếm sản phẩm", JOptionPane.DEFAULT_OPTION);
-        int i = 0;
+//        int i = 0;
         boolean check = false;
         if (MaSP != null) {
-            for (SanPham sp : ListSP) {
-                i++;
-                if (sp.getID_SP().equalsIgnoreCase(MaSP)) {
-                    index = i;
+            for (int j = 0; j < ListSP.size(); j++) {
+                SanPham x = ListSP.get(j);
+                if (MaSP.equalsIgnoreCase(x.getID_SP())) {
                     check = true;
+                    index = j;
                     tblListSP.setRowSelectionInterval(index, index);
                     ShowDetails();
                     return;
                 }
+
             }
-            if (check == false) {
-                JOptionPane.showMessageDialog(this, "Không tồn tại mã sản phẩm");
-                return;
-            }
+//            for (SanPham sp : ListSP) {
+//                i++;
+//                if (sp.getID_SP().equalsIgnoreCase(MaSP)) {
+//                    index = i;
+//                    check = true;
+//                    tblListSP.setRowSelectionInterval(index, index);
+//                    ShowDetails();
+//                    return;
+//                }
+//            }
+        }
+        if (check == false) {
+            JOptionPane.showMessageDialog(this, "Không tồn tại mã sản phẩm");
+            return;
         }
     }//GEN-LAST:event_btnFindActionPerformed
 
@@ -636,10 +650,21 @@ public class QLSP extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
         lblTailen.setText("Tải lên");
     }//GEN-LAST:event_lblTailenMouseExited
-
+    protected void fetchLoaiSP() {
+        String query = "SELECT * FROM SANPHAM";
+        
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            
+            
+        } catch (Exception e) {
+        }
+    }
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
         unEditable();
+        ClearForm();
         try {
 //            if (checkNull()) {
 //                
@@ -711,10 +736,12 @@ public class QLSP extends javax.swing.JInternalFrame {
 
     private void tblListSPMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblListSPMouseClicked
         // TODO add your handling code here:
+       
         index = tblListSP.getSelectedRow();
 
         try {
             if (index >= 0) {
+                unEditable();
                 btnUpdate.setEnabled(true);
                 btnDelete.setEnabled(true);
                 ShowDetails();
@@ -830,11 +857,11 @@ public class QLSP extends javax.swing.JInternalFrame {
         txtTenSP.setEditable(true);
         txtGiaTien.setEditable(true);
         txtNgayNhap.setEditable(true);
-//        cboLoaiSP.setEditable(true);
+        cboLoaiSP.setEnabled(true);
         txtMauSac.setEditable(true);
         txtSoLuong.setEditable(true);
-//        cboSize.setEditable(true);
-//        cboTrangThai.setEditable(true);
+        cboSize.setEnabled(true);
+        cboTrangThai.setEnabled(true);
     }
 
     private boolean checkSo() {

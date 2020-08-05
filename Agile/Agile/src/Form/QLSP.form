@@ -561,6 +561,7 @@
                       </StringArray>
                     </Property>
                     <Property name="selectedIndex" type="int" value="-1"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
@@ -578,6 +579,7 @@
                       </StringArray>
                     </Property>
                     <Property name="selectedIndex" type="int" value="-1"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
@@ -589,20 +591,16 @@
                       <Font name="Tahoma" size="18" style="0"/>
                     </Property>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                      <StringArray count="10">
-                        <StringItem index="0" value="Nike"/>
-                        <StringItem index="1" value="Adidas"/>
-                        <StringItem index="2" value="Converse"/>
-                        <StringItem index="3" value="Balenciaga"/>
-                        <StringItem index="4" value="New Balance"/>
-                        <StringItem index="5" value="Puma"/>
-                        <StringItem index="6" value="Vans"/>
-                        <StringItem index="7" value="Gucci"/>
-                        <StringItem index="8" value="Reebok"/>
-                        <StringItem index="9" value="Alexander MC Queen"/>
+                      <StringArray count="5">
+                        <StringItem index="0" value="Converse"/>
+                        <StringItem index="1" value="Balenciaga"/>
+                        <StringItem index="2" value="Vans"/>
+                        <StringItem index="3" value="Adidas"/>
+                        <StringItem index="4" value="Alexander MC Queen"/>
                       </StringArray>
                     </Property>
                     <Property name="selectedIndex" type="int" value="-1"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>

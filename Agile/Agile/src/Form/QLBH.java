@@ -5,6 +5,7 @@
  */
 package Form;
 
+import Controller.QLDH;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,9 +14,12 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
+import java.sql.Date;
+import java.util.List;
 import java.util.Locale;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -26,23 +30,20 @@ public class QLBH extends javax.swing.JInternalFrame {
     /**
      * Creates new form QLBH
      */
-//    List<SanPham> listSP = new ArrayList<>();
     String user = "sa";
     String pass = "23082001";
     Connection conn;
     String url = "jdbc:sqlserver://localhost:1433;databaseName = QLBH";
     Locale locale = new Locale("vi", "VN");
     NumberFormat current = NumberFormat.getCurrencyInstance(locale);
-    
+    List<QLDH> ListDH = new ArrayList<>();
+    DefaultTableModel model;
+    int index;
+
     public QLBH() {
         initComponents();
         conn = getConnection();
 
-//        cboMaNV.setSelectedIndex(-1);
-//        cboMaSP.setSelectedIndex(-1);
-//        cboMauSac.setSelectedIndex(-1);
-//        cboSize.setSelectedIndex(-1);
-//        cboTenSP.setSelectedIndex(-1);
     }
 
     protected Connection getConnection() {
@@ -104,13 +105,14 @@ public class QLBH extends javax.swing.JInternalFrame {
         txtThanhTien = new javax.swing.JTextField();
         txtSoLuong = new javax.swing.JTextField();
         btnAdd = new javax.swing.JButton();
-        btnIn = new javax.swing.JButton();
+        btnUpdate = new javax.swing.JButton();
         btnXoa = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         btnThoat = new javax.swing.JButton();
         jPanel10 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblListSP = new javax.swing.JTable();
+        bnTSP = new javax.swing.JButton();
 
         setClosable(true);
         setIconifiable(true);
@@ -432,21 +434,33 @@ public class QLBH extends javax.swing.JInternalFrame {
         jPanel9Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {cboSize, jLabel12});
 
         btnAdd.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
-        btnAdd.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus (2).png"))); // NOI18N
-        btnAdd.setText("Thêm");
+        btnAdd.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/add.png"))); // NOI18N
+        btnAdd.setText("Tạo mới");
         btnAdd.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAddActionPerformed(evt);
             }
         });
 
-        btnIn.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
-        btnIn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/print (2).png"))); // NOI18N
-        btnIn.setText("In");
+        btnUpdate.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
+        btnUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/refresh (2).png"))); // NOI18N
+        btnUpdate.setText("Cập nhật");
+        btnUpdate.setEnabled(false);
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnXoa.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         btnXoa.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/remove.png"))); // NOI18N
         btnXoa.setText("Xóa");
+        btnXoa.setEnabled(false);
+        btnXoa.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnXoaActionPerformed(evt);
+            }
+        });
 
         btnSave.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/save.png"))); // NOI18N
@@ -462,7 +476,7 @@ public class QLBH extends javax.swing.JInternalFrame {
         btnThoat.setText("Thoát");
 
         jPanel10.setBackground(new java.awt.Color(255, 204, 204));
-        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "Thông tin hóa đơn", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 18))); // NOI18N
+        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "Giỏ hàng", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 18))); // NOI18N
 
         tblListSP.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         tblListSP.setModel(new javax.swing.table.DefaultTableModel(
@@ -470,15 +484,20 @@ public class QLBH extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "Ngày", "Tên nhân viên", "Tên khách hàng", "Mã hóa đơn", "Tên sản phẩm", "Số lượng", "Size", "Mùa sắc", "Giá", "Giảm giá(%)", "Thành tiền"
+                "Ngày", "Mã nhân viên", "Tên nhân viên", "Mã hóa đơn", "Mã sản phẩm", "Tên sản phẩm", "Màu sắc", "Size", "Số lượng", "Giá bán", "Giảm giá(%)", "Thành tiền", "Mã khách hàng", "Tên khách hàng", "Số điện thoại"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false, false, true, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        tblListSP.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblListSPMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tblListSP);
@@ -487,12 +506,21 @@ public class QLBH extends javax.swing.JInternalFrame {
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1128, Short.MAX_VALUE)
         );
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
+
+        bnTSP.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
+        bnTSP.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/plus (2).png"))); // NOI18N
+        bnTSP.setText("Thêm SP");
+        bnTSP.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bnTSPActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -502,8 +530,8 @@ public class QLBH extends javax.swing.JInternalFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(34, 34, 34)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -511,14 +539,14 @@ public class QLBH extends javax.swing.JInternalFrame {
                                         .addGap(27, 27, 27)
                                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(53, 53, 53)
+                                .addGap(18, 18, 18)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(btnAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(btnIn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(btnXoa, javax.swing.GroupLayout.Alignment.TRAILING))
-                                    .addComponent(btnThoat)
-                                    .addComponent(btnSave)))))
+                                    .addComponent(btnAdd, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btnUpdate, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btnXoa, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btnSave, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btnThoat, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(bnTSP, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(56, 56, 56)
                         .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -526,10 +554,10 @@ public class QLBH extends javax.swing.JInternalFrame {
                         .addComponent(jLabel1)
                         .addGap(20, 20, 20)
                         .addComponent(txtMaHD, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(51, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnAdd, btnIn, btnSave, btnThoat, btnXoa});
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {bnTSP, btnAdd, btnSave, btnThoat, btnUpdate, btnXoa});
 
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -544,25 +572,29 @@ public class QLBH extends javax.swing.JInternalFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(45, 45, 45)
-                        .addComponent(btnIn, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(45, 45, 45)
+                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(btnXoa, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(45, 45, 45)
+                        .addGap(18, 18, 18)
                         .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(45, 45, 45)
+                        .addGap(18, 18, 18)
+                        .addComponent(bnTSP, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(btnThoat, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(18, 18, 18)
                         .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {bnTSP, btnAdd, btnSave, btnThoat, btnUpdate, btnXoa});
 
         jScrollPane3.setViewportView(jPanel1);
 
@@ -570,11 +602,11 @@ public class QLBH extends javax.swing.JInternalFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 1205, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 1209, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 638, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 625, Short.MAX_VALUE)
         );
 
         pack();
@@ -602,10 +634,6 @@ public class QLBH extends javax.swing.JInternalFrame {
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         // TODO add your handling code here:
-//        fetchTenSP();
-//        fetchMauSac();
-//        fetchSize();
-
         unEnditable();
         fetechMaNV();
         cboMaNV.setSelectedIndex(-1);
@@ -616,67 +644,185 @@ public class QLBH extends javax.swing.JInternalFrame {
         cboSize.setSelectedIndex(-1);
         cboTenSP.setSelectedIndex(-1);
     }//GEN-LAST:event_btnAddActionPerformed
+    protected boolean checkMaKH() {
+        String query = "SELECT * FROM KHACHHANG";
+//        boolean check = false;
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
 
+            while (rs.next()) {
+                if (txtMaKH.getText().equalsIgnoreCase(rs.getString("ID_KH"))) {
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    protected void addKH() {
+        String query = "INSERT INTO KHACHHANG(TEN_KH, PHONE) OUTPUT INSERTED.ID_KH"
+                + "VALUES(?, ?)";
+
+        if (checkMaKH()) {
+
+        }
+    }
+
+    protected void InsertKH() {
+        String query_KH = "INSERT INTO KHACHHANG(ID_KH, TEN_KH, PHONE)"
+                + "VALUES(?, ?, ?)";
+        try {
+            PreparedStatement ps = conn.prepareStatement(query_KH);
+            ps.setString(1, txtMaKH.getText());
+            ps.setNString(2, txtTenKH.getText());
+            ps.setString(3, txtSDT.getText());
+            ps.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void InsertHD() {
+        String query_HD = "INSERT INTO HOADON(ID_HD, ID_NV, ID_KH, NGMUA, TONGTIEN)"
+                + "VALUES(?, ?, ?, ?, ?)";
+        double TT = 0;
+        for (int i = 0; i < ListDH.size(); i++) {
+            QLDH x = ListDH.get(i);
+            TT += x.getThanhTien();
+        }
+        try {
+            PreparedStatement ps = conn.prepareStatement(query_HD);
+            ps.setString(1, txtMaHD.getText());
+            ps.setString(2, cboMaNV.getSelectedItem().toString());
+            ps.setString(3, txtMaKH.getText());
+            ps.setString(4, txtNgayBan.getText());
+            ps.setDouble(5, TT);
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+//    protected void checkMKH() {
+//        
+//    }
+
+    protected boolean checkMaHD() {
+        String query = "SELECT * FROM HOADON";
+//        boolean check = false;
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                if (txtMaHD.getText().equalsIgnoreCase(rs.getString("ID_HD"))) {
+                    JOptionPane.showMessageDialog(this, "Mã hóa đơn đã tồn tại");
+                    txtMaHD.setEditable(true);
+                    txtMaHD.requestFocus();
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
+//        String query_HD = "INSERT INTO HOADON(ID_HD, ID_NV, ID_KH, NGMUA, TONGTIEN) OUTPUT.INSERTED.ID_HD"
+//                + "VALUES(?, ?, ?, ?, ?)";
+//        String query_KH = "INSERT INTO KHACHHANG(ID_KH, TEN_KH, PHONE) OUTPUT.INSERTED_ID_KH"
+//                + "VALUES(?, ?, ?)";
+//        double TT = 0;
+//        for (int i = 0; i < ListDH.size(); i++) {
+//            QLDH x = ListDH.get(i);
+//            TT += x.getThanhTien();
+//        }
+        String query_HDCT = "INSERT INTO HOADON_CHITIET(ID_HD, ID_SP, TEN_SP, MAUSAC, "
+                + "SIZE, SOLUONG, NGAYMUA, GIA, DISCOUNT, THANHTIEN)"
+                + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
-            if (checkNull() && checkNgay() && checkSoDT() && checkSo()) {
-                JOptionPane.showMessageDialog(this, "Thêm thành công");
+//            if (checkNull() && checkNgay() && checkSoDT() && checkSo()) {
+//                JOptionPane.showMessageDialog(this, "Thêm thành công");
+//            }
+            if (ListDH.size() > 0) {
+
+//                ps.setString(1, txtMaKH.getText());
+//                ps.setNString(2, txtTenKH.getText());
+//                ps.setString(3, txtSDT.getText());
+//                ps.executeUpdate();
+//
+//                ps = conn.prepareStatement(query_HD);
+//                ps.setString(1, txtMaHD.getText());
+//                ps.setString(2, txtNgayBan.getText());
+//                ps.setString(3, cboMaNV.getSelectedItem().toString());
+//                ps.setNString(4, txtMaKH.getText());
+//                ps.setDouble(5, TT);
+//
+//                ps.executeUpdate();
+                if (checkMaKH()) {
+                    InsertKH();
+                    InsertHD();
+                    PreparedStatement ps;
+                    for (int i = 0; i < ListDH.size(); i++) {
+                        QLDH x = ListDH.get(i);
+                        ps = conn.prepareStatement(query_HDCT);
+                        ps.setString(1, x.getMaHD());
+                        ps.setString(2, x.getMaSP());
+                        ps.setNString(3, x.getTenSP());
+                        ps.setNString(4, x.getMauSac());
+                        ps.setInt(5, x.getSize());
+                        ps.setInt(6, x.getSoLuong());
+
+                        ps.setDate(7, x.getNgayBan());
+                        ps.setDouble(8, x.getGiaSP());
+                        ps.setDouble(9, x.getDiscount());
+                        ps.setDouble(10, x.getThanhTien());
+
+                        ps.executeUpdate();
+                        ps.clearParameters();
+                    }
+                    JOptionPane.showMessageDialog(this, "Thêm thành công");
+                    ListDH.clear();
+                    fillToForm();
+                    ClearForm();
+                } else {
+                    InsertHD();
+                    PreparedStatement ps;
+                    for (int i = 0; i < ListDH.size(); i++) {
+                        QLDH x = ListDH.get(i);
+                        ps = conn.prepareStatement(query_HDCT);
+                        ps.setString(1, x.getMaHD());
+                        ps.setString(2, x.getMaSP());
+                        ps.setNString(3, x.getTenSP());
+                        ps.setNString(4, x.getMauSac());
+                        ps.setInt(5, x.getSize());
+                        ps.setInt(6, x.getSoLuong());
+
+                        ps.setDate(7, x.getNgayBan());
+                        ps.setDouble(8, x.getGiaSP());
+                        ps.setDouble(9, x.getDiscount());
+                        ps.setDouble(10, x.getThanhTien());
+
+                        ps.executeUpdate();
+                        ps.clearParameters();
+                    }
+                    JOptionPane.showMessageDialog(this, "Thêm thành công");
+                    ListDH.clear();
+                    fillToForm();
+                    ClearForm();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Chưa có sản phẩm nào tong giỏ hàng");
+                return;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }//GEN-LAST:event_btnSaveActionPerformed
-
-    private void cboMaNVItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboMaNVItemStateChanged
-        // TODO add your handling code here:
-//        String query = "SELECT * FROM NHANVIEN WHERE ID_NV = ?";
-//
-//        try {
-////            cboMaNV.removeAllItems();
-//            if (cboMaNV.getSelectedIndex() == -1) {
-//                return;
-//            } else {
-//                PreparedStatement ps = conn.prepareStatement(query);
-//                ps.setString(1, cboMaNV.getSelectedItem().toString());
-//
-//                ResultSet rs = ps.executeQuery();
-//                
-//                while (rs.next()) {
-//                    txtTenNV.setText(rs.getString("TEN_NV"));
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-    }//GEN-LAST:event_cboMaNVItemStateChanged
-
-    private void cboMaSPItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboMaSPItemStateChanged
-        // TODO add your handling code here:
-//        String query = "SELECT * FROM SANPHAM WHERE ID_SP = ?";
-//
-//        try {
-//            if (cboMaSP.getSelectedIndex() == -1) {
-//                return;
-//            } else {
-//                PreparedStatement ps = conn.prepareStatement(query);
-//                ps.setString(1, cboMaSP.getSelectedItem().toString());
-//
-//                ResultSet rs = ps.executeQuery();
-//                cboTenSP.removeAllItems();
-//                cboMauSac.removeAllItems();
-//                cboSize.removeAllItems();
-//                while (rs.next()) {
-//                    cboTenSP.addItem(rs.getNString("TEN_SP"));
-//                    cboMauSac.addItem(rs.getNString("MAUSAC"));
-//                    cboSize.addItem(rs.getInt("SIZE") + "");
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-    }//GEN-LAST:event_cboMaSPItemStateChanged
 
     private void cboMaNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboMaNVActionPerformed
         // TODO add your handling code here:
@@ -732,6 +878,133 @@ public class QLBH extends javax.swing.JInternalFrame {
             e.printStackTrace();
         }
     }//GEN-LAST:event_cboMaSPActionPerformed
+
+    private void cboMaSPItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboMaSPItemStateChanged
+        // TODO add your handling code here:
+        //        String query = "SELECT * FROM SANPHAM WHERE ID_SP = ?";
+        //
+        //        try {
+        //            if (cboMaSP.getSelectedIndex() == -1) {
+        //                return;
+        //            } else {
+        //                PreparedStatement ps = conn.prepareStatement(query);
+        //                ps.setString(1, cboMaSP.getSelectedItem().toString());
+        //
+        //                ResultSet rs = ps.executeQuery();
+        //                cboTenSP.removeAllItems();
+        //                cboMauSac.removeAllItems();
+        //                cboSize.removeAllItems();
+        //                while (rs.next()) {
+        //                    cboTenSP.addItem(rs.getNString("TEN_SP"));
+        //                    cboMauSac.addItem(rs.getNString("MAUSAC"));
+        //                    cboSize.addItem(rs.getInt("SIZE") + "");
+        //                }
+        //            }
+        //        } catch (Exception e) {
+        //            e.printStackTrace();
+        //        }
+    }//GEN-LAST:event_cboMaSPItemStateChanged
+
+    private void cboMaNVItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboMaNVItemStateChanged
+        // TODO add your handling code here:
+        //        String query = "SELECT * FROM NHANVIEN WHERE ID_NV = ?";
+        //
+        //        try {
+        ////            cboMaNV.removeAllItems();
+        //            if (cboMaNV.getSelectedIndex() == -1) {
+        //                return;
+        //            } else {
+        //                PreparedStatement ps = conn.prepareStatement(query);
+        //                ps.setString(1, cboMaNV.getSelectedItem().toString());
+        //
+        //                ResultSet rs = ps.executeQuery();
+        //
+        //                while (rs.next()) {
+        //                    txtTenNV.setText(rs.getString("TEN_NV"));
+        //                }
+        //            }
+        //
+        //        } catch (Exception e) {
+        //            e.printStackTrace();
+        //        }
+    }//GEN-LAST:event_cboMaNVItemStateChanged
+
+    private void bnTSPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnTSPActionPerformed
+        // TODO add your handling code here:
+
+        if (checkNull() && checkNgay() && checkSoDT() && checkSo() && checkMaHD()) {
+            try {
+                txtMaHD.setEditable(false);
+                addToForm();
+                fillToForm();
+                Reset();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }//GEN-LAST:event_bnTSPActionPerformed
+
+    private void tblListSPMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblListSPMouseClicked
+        // TODO add your handling code here:
+        index = tblListSP.getSelectedRow();
+        btnUpdate.setEnabled(true);
+        btnXoa.setEnabled(true);
+        if (index >= 0) {
+            showDetails();
+        }
+    }//GEN-LAST:event_tblListSPMouseClicked
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+        index = tblListSP.getSelectedRow();
+        Date NgayMua = Date.valueOf(txtNgayBan.getText());
+        String MaNV = cboMaNV.getSelectedItem().toString();
+        String TenNV = txtTenNV.getText();
+        String MaKH = txtMaKH.getText();
+        String TenKH = txtTenKH.getText();
+        String SDT = txtSDT.getText();
+        String MaSP = cboMaSP.getSelectedItem().toString();
+        String TenSP = cboTenSP.getSelectedItem().toString();
+        String MauSac = cboMauSac.getSelectedItem().toString();
+        String kt = cboSize.getSelectedItem().toString();
+        int Size = Integer.parseInt(kt);
+        int SoLuong = Integer.parseInt(txtSoLuong.getText());
+        double GiaSP = Double.parseDouble(txtGiaSP.getText());
+        double GiamGia = Double.parseDouble(txtGiamGia.getText());
+        double ThanhTien = Double.parseDouble(txtThanhTien.getText());
+
+        try {
+            if (ListDH.size() > 0) {
+                if (index >= 0) {
+                    if (checkNull() && checkNgay() && checkSoDT() && checkSo() && checkMaHD()) {
+                        ListDH.set(index, new QLDH(MaSP, NgayMua, MaNV, TenNV, MaKH, TenKH, SDT, MaSP, TenSP, GiaSP, SoLuong, MauSac, GiamGia, Size, ThanhTien));
+                        JOptionPane.showMessageDialog(this, "Update thành công");
+                        fillToForm();
+                        ReadForm();
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Giỏ hàng trống");
+                return;
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn dữ liệu để cập nhật");
+            return;
+        }
+
+    }//GEN-LAST:event_btnUpdateActionPerformed
+    protected void Delete() {
+        ListDH.remove(index);
+    }
+    private void btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaActionPerformed
+        // TODO add your handling code here:
+        index = tblListSP.getSelectedRow();
+        if (index >= 0) {
+            Delete();
+            Reset();
+            fillToForm();
+        }
+    }//GEN-LAST:event_btnXoaActionPerformed
     protected void fetechMaNV() {
         String query = "SELECT ID_NV FROM NHANVIEN";
 
@@ -876,6 +1149,62 @@ public class QLBH extends javax.swing.JInternalFrame {
         return true;
     }
 
+    protected QLDH ReadForm() {
+        String MaHD = txtMaHD.getText();
+        Date NgayBan = Date.valueOf(txtNgayBan.getText());
+        String MaNV = cboMaNV.getSelectedItem().toString();
+        String TenNV = txtTenNV.getText();
+
+        String MaKH = txtMaKH.getText();
+        String TenKH = txtTenKH.getText();
+        String SDT = txtSDT.getText();
+
+        String MaSP = cboMaSP.getSelectedItem().toString();
+        String TenSP = cboTenSP.getSelectedItem().toString();
+        double GiaSP = Double.parseDouble(txtGiaSP.getText());
+        int SoLuong = Integer.parseInt(txtSoLuong.getText());
+
+        String MauSac = cboMauSac.getSelectedItem().toString();
+        double Discount = Double.parseDouble(txtGiamGia.getText());
+        String kt = cboSize.getSelectedItem().toString();
+        int Size = Integer.parseInt(kt);
+        double ThanhTien = Double.parseDouble(txtThanhTien.getText());
+
+        QLDH qlbh = new QLDH(MaHD, NgayBan, MaNV, TenNV, MaKH, TenKH, SDT, MaSP,
+                TenSP, GiaSP, SoLuong, MauSac, Discount, Size, ThanhTien);
+        return qlbh;
+    }
+
+    protected void addToForm() {
+        QLDH qlbh = ReadForm();
+        ListDH.add(qlbh);
+
+    }
+
+    protected void fillToForm() {
+        model = (DefaultTableModel) tblListSP.getModel();
+        model.setRowCount(0);
+
+        for (QLDH x : ListDH) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            model.addRow(new Object[]{sdf.format(x.getNgayBan()), x.getMaNV(), x.getTenNV(),
+                x.getMaHD(), x.getMaSP(), x.getTenSP(), x.getMauSac(), x.getSize(),
+                x.getSoLuong(), x.getGiaSP(), x.getDiscount(), x.getThanhTien(),
+                x.getMaKH(), x.getTenKH(), x.getSDT()});
+        }
+    }
+
+    protected void Reset() {
+        cboMaSP.setSelectedIndex(-1);
+        cboTenSP.setSelectedIndex(-1);
+        cboMauSac.setSelectedIndex(-1);
+        cboSize.setSelectedIndex(-1);
+        txtSoLuong.setText("");
+        txtGiaSP.setText("");
+        txtGiamGia.setText("");
+        txtThanhTien.setText("");
+    }
+
     private boolean checkSoDT() {
         String parrent = "0\\d{9}";
 //        String sdt = txtSDT.getText();
@@ -957,7 +1286,8 @@ public class QLBH extends javax.swing.JInternalFrame {
         Date date;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            date = (Date) sdf.parse(txtNgayBan.getText());
+//            (Date) sdf.parse(txtNgayBan.getText())
+            date = Date.valueOf(txtNgayBan.getText());
             return true;
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Ngày bán sản phẩm phải đúng định dạng yyyy-MM-dd",
@@ -987,10 +1317,11 @@ public class QLBH extends javax.swing.JInternalFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bnTSP;
     private javax.swing.JButton btnAdd;
-    private javax.swing.JButton btnIn;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnThoat;
+    private javax.swing.JButton btnUpdate;
     private javax.swing.JButton btnXoa;
     private javax.swing.JComboBox<String> cboMaNV;
     private javax.swing.JComboBox<String> cboMaSP;
@@ -1043,14 +1374,38 @@ public class QLBH extends javax.swing.JInternalFrame {
         txtSoLuong.setText("");
         txtGiamGia.setText("");
         txtThanhTien.setText("");
+        txtMaHD.setText("");
+        txtMaHD.setEditable(true);
 
-//        cboSize.setSelectedIndex(-1);
-//        cboMauSac.setSelectedIndex(-1);
-//        cboMaNV.setSelectedIndex(-1);
-//        cboMaSP.setSelectedIndex(-1);
-//        cboTenSP.setSelectedIndex(-1);
+        cboSize.setSelectedIndex(-1);
+        cboMauSac.setSelectedIndex(-1);
+        cboMaNV.setSelectedIndex(-1);
+        cboMaSP.setSelectedIndex(-1);
+        cboTenSP.setSelectedIndex(-1);
 //        cboMaSP.removeAllItems();
 //        cboTenSP.removeAllItems();
 //        cboMaNV.removeAllItems();
+    }
+
+    protected void showDetails() {
+        QLDH x = ListDH.get(index);
+
+        txtMaHD.setText(x.getMaHD());
+        txtNgayBan.setText(x.getNgayBan() + "");
+        cboMaNV.setSelectedItem(x.getMaNV());
+        txtTenNV.setText(x.getTenNV());
+
+        txtMaKH.setText(x.getMaKH());
+        txtTenKH.setText(x.getTenKH());
+        txtSDT.setText(x.getSDT());
+
+        cboMaSP.setSelectedItem(x.getMaSP());
+        cboTenSP.setSelectedItem(x.getTenSP());
+        cboMauSac.setSelectedItem(x.getMauSac());
+        cboSize.setSelectedItem(x.getSize());
+        txtGiaSP.setText(x.getGiaSP() + "");
+        txtSoLuong.setText(x.getSoLuong() + "");
+        txtGiamGia.setText(x.getDiscount() + "");
+        txtThanhTien.setText(x.getThanhTien() + "");
     }
 }
