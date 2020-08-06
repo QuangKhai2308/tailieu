@@ -5,6 +5,7 @@
  */
 package main;
 
+import Form.Forgot;
 import Form.Login;
 import Form.QLBH;
 import Form.QLSP;
@@ -32,7 +33,8 @@ public class main extends javax.swing.JFrame {
     QLBH qlbh;
     Quanly_doanhthu ql_dt;
     menu_banhang menu;
-    
+    Forgot forgot;
+
     public main() {
         initComponents();
 //        setLocationRelativeTo(null);
@@ -58,6 +60,7 @@ public class main extends javax.swing.JFrame {
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem9 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jMenuItem6 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -144,6 +147,16 @@ public class main extends javax.swing.JFrame {
             }
         });
         jMenu2.add(jMenuItem2);
+
+        jMenuItem9.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jMenuItem9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/pas.png"))); // NOI18N
+        jMenuItem9.setText("Quên mật khẩu");
+        jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem9ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem9);
 
         jMenuBar1.add(jMenu2);
 
@@ -253,6 +266,17 @@ public class main extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
+    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
+        // TODO add your handling code here:
+        if (forgot == null || forgot.isClosable()) {
+            forgot = new Forgot();
+            forgot.setLocation(this.getWidth() / 2 - forgot.getWidth() / 2, (this.getHeight() - 20) / 2 - forgot.getHeight() / 2 - 20);
+            Desktop.add(forgot);
+            forgot.setVisible(true);
+        }
+
+    }//GEN-LAST:event_jMenuItem9ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -302,5 +326,6 @@ public class main extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem6;
     private javax.swing.JMenuItem jMenuItem7;
     private javax.swing.JMenuItem jMenuItem8;
+    private javax.swing.JMenuItem jMenuItem9;
     // End of variables declaration//GEN-END:variables
 }

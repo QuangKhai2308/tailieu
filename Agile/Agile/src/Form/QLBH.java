@@ -34,12 +34,13 @@ public class QLBH extends javax.swing.JInternalFrame {
     String pass = "23082001";
     Connection conn;
     String url = "jdbc:sqlserver://localhost:1433;databaseName = QLBH";
-    Locale locale = new Locale("vi", "VN");
-    NumberFormat current = NumberFormat.getCurrencyInstance(locale);
+    Locale locale = new Locale("en", "EN");
+//    NumberFormat current = NumberFormat.getCurrencyInstance(locale);
+    DecimalFormat dcf = (DecimalFormat) NumberFormat.getNumberInstance(locale);
     List<QLDH> ListDH = new ArrayList<>();
     DefaultTableModel model;
     int index;
-
+    String partter = "#,###,###";
     public QLBH() {
         initComponents();
         conn = getConnection();
@@ -104,6 +105,7 @@ public class QLBH extends javax.swing.JInternalFrame {
         jLabel15 = new javax.swing.JLabel();
         txtThanhTien = new javax.swing.JTextField();
         txtSoLuong = new javax.swing.JTextField();
+        lblSL = new javax.swing.JLabel();
         btnAdd = new javax.swing.JButton();
         btnUpdate = new javax.swing.JButton();
         btnXoa = new javax.swing.JButton();
@@ -180,11 +182,11 @@ public class QLBH extends javax.swing.JInternalFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addGap(49, 49, 49)
-                        .addComponent(txtNgayBan, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtNgayBan, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addGap(18, 18, 18)
@@ -192,8 +194,8 @@ public class QLBH extends javax.swing.JInternalFrame {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtTenNV, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(136, Short.MAX_VALUE))
+                        .addComponent(txtTenNV)))
+                .addContainerGap(114, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -263,10 +265,10 @@ public class QLBH extends javax.swing.JInternalFrame {
                     .addComponent(jLabel22))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(txtSDT, javax.swing.GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE)
-                    .addComponent(txtTenKH, javax.swing.GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE)
-                    .addComponent(txtMaKH, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE))
-                .addContainerGap(152, Short.MAX_VALUE))
+                    .addComponent(txtMaKH, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                    .addComponent(txtTenKH)
+                    .addComponent(txtSDT))
+                .addContainerGap(100, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -333,7 +335,7 @@ public class QLBH extends javax.swing.JInternalFrame {
         txtGiaSP.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jLabel14.setText("Giảm giá(%)");
+        jLabel14.setText("Giảm giá");
 
         txtGiamGia.setEditable(false);
         txtGiamGia.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
@@ -347,6 +349,8 @@ public class QLBH extends javax.swing.JInternalFrame {
         txtSoLuong.setEditable(false);
         txtSoLuong.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
+        lblSL.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
@@ -357,9 +361,12 @@ public class QLBH extends javax.swing.JInternalFrame {
                     .addComponent(jLabel23)
                     .addComponent(jLabel9))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(cboMaSP, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtSoLuong, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(txtSoLuong, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(8, 8, 8)
+                        .addComponent(lblSL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel9Layout.createSequentialGroup()
@@ -381,15 +388,18 @@ public class QLBH extends javax.swing.JInternalFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(cboSize, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(81, 81, 81)
+                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel15)
+                            .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE))
+                        .addGap(10, 10, 10)
                         .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel14)
-                            .addComponent(jLabel15, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtThanhTien)
-                            .addComponent(txtGiamGia))))
+                            .addComponent(txtGiamGia)
+                            .addComponent(txtThanhTien))))
                 .addContainerGap())
         );
+
+        jPanel9Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel13, jLabel14, jLabel15});
+
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
@@ -405,12 +415,13 @@ public class QLBH extends javax.swing.JInternalFrame {
                                 .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(txtGiaSP))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(cboMauSac, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(txtSoLuong, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(txtSoLuong)
+                            .addComponent(lblSL, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(txtGiamGia, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -484,7 +495,7 @@ public class QLBH extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "Ngày", "Mã nhân viên", "Tên nhân viên", "Mã hóa đơn", "Mã sản phẩm", "Tên sản phẩm", "Màu sắc", "Size", "Số lượng", "Giá bán", "Giảm giá(%)", "Thành tiền", "Mã khách hàng", "Tên khách hàng", "Số điện thoại"
+                "Ngày", "Mã nhân viên", "Tên nhân viên", "Mã hóa đơn", "Mã sản phẩm", "Tên sản phẩm", "Màu sắc", "Size", "Số lượng", "Giá bán", "Giảm giá", "Thành tiền", "Mã khách hàng", "Tên khách hàng", "Số điện thoại"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -550,11 +561,11 @@ public class QLBH extends javax.swing.JInternalFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(56, 56, 56)
                         .addComponent(lblTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(65, 65, 65)
+                        .addGap(170, 170, 170)
                         .addComponent(jLabel1)
                         .addGap(20, 20, 20)
                         .addComponent(txtMaHD, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
 
         jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {bnTSP, btnAdd, btnSave, btnThoat, btnUpdate, btnXoa});
@@ -595,6 +606,8 @@ public class QLBH extends javax.swing.JInternalFrame {
         );
 
         jPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {bnTSP, btnAdd, btnSave, btnThoat, btnUpdate, btnXoa});
+
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jLabel1, txtMaHD});
 
         jScrollPane3.setViewportView(jPanel1);
 
@@ -730,6 +743,22 @@ public class QLBH extends javax.swing.JInternalFrame {
         }
         return true;
     }
+
+    protected void UpdateSL() {
+
+    }
+//    protected void loadSP() {
+//        String query_SP = "SELECT * FROM SANPHAM WHERE ID_SP = ?";
+//        
+//        try {
+//            PreparedStatement ps = conn.prepareStatement(query_SP);
+//            ps.setString(1, );
+//            ps.execute();
+//            
+//            
+//        } catch (Exception e) {
+//        }
+//    }
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
 //        String query_HD = "INSERT INTO HOADON(ID_HD, ID_NV, ID_KH, NGMUA, TONGTIEN) OUTPUT.INSERTED.ID_HD"
@@ -785,6 +814,26 @@ public class QLBH extends javax.swing.JInternalFrame {
                         ps.executeUpdate();
                         ps.clearParameters();
                     }
+                    String query_SP = "SELECT * FROM SANPHAM WHERE ID_SP = ?";
+                    String query_UD = "UPDATE SANPHAM SET SOLUONG = ? WHERE ID_SP = ?";
+                    ResultSet rs;
+                    int load = 0;
+                    for (int i = 0; i < ListDH.size(); i++) {
+                        QLDH x = ListDH.get(i);
+                        ps = conn.prepareStatement(query_SP);
+                        ps.setString(1, x.getMaSP());
+                        rs = ps.executeQuery();
+                        while (rs.next()) {
+                            int sl = rs.getInt("SOLUONG");
+                            load = sl - x.getSoLuong();
+                        }
+                        ps = conn.prepareStatement(query_UD);
+                        ps.setInt(1, load);
+                        ps.setString(2, x.getMaSP());
+                        ps.execute();
+                        load = 0;
+                        ps.clearParameters();
+                    }
                     JOptionPane.showMessageDialog(this, "Thêm thành công");
                     ListDH.clear();
                     fillToForm();
@@ -808,6 +857,26 @@ public class QLBH extends javax.swing.JInternalFrame {
                         ps.setDouble(10, x.getThanhTien());
 
                         ps.executeUpdate();
+                        ps.clearParameters();
+                    }
+                    String query_SP = "SELECT * FROM SANPHAM WHERE ID_SP = ?";
+                    String query_UD = "UPDATE SANPHAM SET SOLUONG = ? WHERE ID_SP = ?";
+                    ResultSet rs;
+                    int load = 0;
+                    for (int i = 0; i < ListDH.size(); i++) {
+                        QLDH x = ListDH.get(i);
+                        ps = conn.prepareStatement(query_SP);
+                        ps.setString(1, x.getMaSP());
+                        rs = ps.executeQuery();
+                        while (rs.next()) {
+                            int sl = rs.getInt("SOLUONG");
+                            load = sl - x.getSoLuong();
+                        }
+                        ps = conn.prepareStatement(query_UD);
+                        ps.setInt(1, load);
+                        ps.setString(2, x.getMaSP());
+                        ps.execute();
+                        load = 0;
                         ps.clearParameters();
                     }
                     JOptionPane.showMessageDialog(this, "Thêm thành công");
@@ -857,6 +926,7 @@ public class QLBH extends javax.swing.JInternalFrame {
             cboTenSP.removeAllItems();
             cboMauSac.removeAllItems();
             cboSize.removeAllItems();
+            lblSL.setText("");
             if (cboMaSP.getSelectedIndex() == -1) {
                 return;
             } else {
@@ -872,6 +942,7 @@ public class QLBH extends javax.swing.JInternalFrame {
                     cboMauSac.addItem(rs.getNString("MAUSAC"));
                     cboSize.addItem(rs.getInt("SIZE") + "");
                     txtGiaSP.setText(Gia + "");
+                    lblSL.setText("Còn: " + rs.getInt("SOLUONG"));
                 }
             }
         } catch (Exception e) {
@@ -928,18 +999,34 @@ public class QLBH extends javax.swing.JInternalFrame {
         //            e.printStackTrace();
         //        }
     }//GEN-LAST:event_cboMaNVItemStateChanged
-
+    protected boolean checkSL() {
+        int sln = Integer.parseInt(txtSoLuong.getText());
+        int slt = Integer.parseInt(lblSL.getText().substring(5));
+        System.out.println(slt);
+        if (sln > slt) {
+            JOptionPane.showMessageDialog(this, "Số lượng sản phẩm trong kho không đủ");
+            txtSoLuong.requestFocus();
+            return false;
+        }
+        return true;
+    }
     private void bnTSPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnTSPActionPerformed
         // TODO add your handling code here:
-
+        
         if (checkNull() && checkNgay() && checkSoDT() && checkSo() && checkMaHD()) {
-            try {
-                txtMaHD.setEditable(false);
-                addToForm();
-                fillToForm();
-                Reset();
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (lblSL.getText().equalsIgnoreCase("0")) {
+                JOptionPane.showMessageDialog(this, "Sản phẩm này đã hết hàng");
+                return;
+            } else if (checkSL()){
+                try {
+                    txtMaHD.setEditable(false);
+                    addToForm();
+                    fillToForm();
+                    Reset();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
             }
         }
     }//GEN-LAST:event_bnTSPActionPerformed
@@ -1034,6 +1121,7 @@ public class QLBH extends javax.swing.JInternalFrame {
             while (rs.next()) {
                 cboMaSP.addItem(rs.getString("ID_SP"));
             }
+//            cboMaSP.setSelectedIndex(-1);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1184,12 +1272,13 @@ public class QLBH extends javax.swing.JInternalFrame {
     protected void fillToForm() {
         model = (DefaultTableModel) tblListSP.getModel();
         model.setRowCount(0);
-
+        
         for (QLDH x : ListDH) {
+            dcf.applyPattern(partter);
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
             model.addRow(new Object[]{sdf.format(x.getNgayBan()), x.getMaNV(), x.getTenNV(),
                 x.getMaHD(), x.getMaSP(), x.getTenSP(), x.getMauSac(), x.getSize(),
-                x.getSoLuong(), x.getGiaSP(), x.getDiscount(), x.getThanhTien(),
+                x.getSoLuong(), dcf.format(x.getGiaSP()), x.getDiscount(), x.getThanhTien(),
                 x.getMaKH(), x.getTenKH(), x.getSDT()});
         }
     }
@@ -1350,6 +1439,7 @@ public class QLBH extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JLabel lblSL;
     private javax.swing.JLabel lblTitle;
     private javax.swing.JTable tblListSP;
     private javax.swing.JTextField txtGiaSP;
@@ -1389,7 +1479,8 @@ public class QLBH extends javax.swing.JInternalFrame {
 
     protected void showDetails() {
         QLDH x = ListDH.get(index);
-
+        dcf.applyPattern(partter);
+        
         txtMaHD.setText(x.getMaHD());
         txtNgayBan.setText(x.getNgayBan() + "");
         cboMaNV.setSelectedItem(x.getMaNV());
@@ -1403,9 +1494,9 @@ public class QLBH extends javax.swing.JInternalFrame {
         cboTenSP.setSelectedItem(x.getTenSP());
         cboMauSac.setSelectedItem(x.getMauSac());
         cboSize.setSelectedItem(x.getSize());
-        txtGiaSP.setText(x.getGiaSP() + "");
+        txtGiaSP.setText(dcf.format(x.getGiaSP()) + "");
         txtSoLuong.setText(x.getSoLuong() + "");
-        txtGiamGia.setText(x.getDiscount() + "");
-        txtThanhTien.setText(x.getThanhTien() + "");
+        txtGiamGia.setText(dcf.format(x.getDiscount()) + "");
+        txtThanhTien.setText(dcf.format(x.getThanhTien()) + "");
     }
 }

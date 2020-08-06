@@ -10,6 +10,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Image;
 import java.io.File;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -19,6 +20,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.sql.Date;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
@@ -47,14 +49,17 @@ public class QLSP extends javax.swing.JInternalFrame {
     DefaultTableModel model;
     String ImageName = "";
     int index;
-    Locale locale = new Locale("vi", "VN");
-    NumberFormat current = NumberFormat.getCurrencyInstance(locale);
+    Locale locale = new Locale("en", "EN");
+    DecimalFormat dcf = (DecimalFormat) NumberFormat.getNumberInstance(locale);
+//    NumberFormat current = NumberFormat.getCurrencyInstance(locale);
 
     public QLSP() {
         initComponents();
         conn = getConnection();
         ListSP = fetchList();
         renderForm(ListSP);
+//        read();
+
     }
 
     /**
@@ -72,7 +77,6 @@ public class QLSP extends javax.swing.JInternalFrame {
         btnUpdate = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnCannel = new javax.swing.JButton();
-        btnFind = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         panel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -103,6 +107,9 @@ public class QLSP extends javax.swing.JInternalFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tblListSP = new javax.swing.JTable();
         btnSave = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        btnFind = new javax.swing.JButton();
+        txtTimSP = new javax.swing.JTextField();
 
         setClosable(true);
         setIconifiable(true);
@@ -147,15 +154,6 @@ public class QLSP extends javax.swing.JInternalFrame {
         btnCannel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCannelActionPerformed(evt);
-            }
-        });
-
-        btnFind.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
-        btnFind.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/search.png"))); // NOI18N
-        btnFind.setText("Tìm");
-        btnFind.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnFindActionPerformed(evt);
             }
         });
 
@@ -453,6 +451,20 @@ public class QLSP extends javax.swing.JInternalFrame {
             }
         });
 
+        jLabel6.setFont(new java.awt.Font("Tahoma", 0, 22)); // NOI18N
+        jLabel6.setText("Tìm sản phẩm");
+
+        btnFind.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
+        btnFind.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/search.png"))); // NOI18N
+        btnFind.setText("Tìm sản phẩm");
+        btnFind.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFindActionPerformed(evt);
+            }
+        });
+
+        txtTimSP.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -461,41 +473,54 @@ public class QLSP extends javax.swing.JInternalFrame {
                 .addGap(28, 28, 28)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addGap(29, 29, 29)
+                                .addComponent(txtTimSP, javax.swing.GroupLayout.PREFERRED_SIZE, 536, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(88, 88, 88)
+                                .addComponent(btnFind)))
+                        .addContainerGap(32, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btnAdd)
-                        .addGap(82, 82, 82)
+                        .addGap(90, 90, 90)
                         .addComponent(btnUpdate)
-                        .addGap(82, 82, 82)
-                        .addComponent(btnFind)
-                        .addGap(82, 82, 82)
+                        .addGap(95, 95, 95)
                         .addComponent(btnDelete)
-                        .addGap(82, 82, 82)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnCannel)
-                        .addGap(82, 82, 82)
-                        .addComponent(btnSave))
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(109, 109, 109)
+                        .addComponent(btnSave)
+                        .addGap(97, 97, 97))))
         );
+
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnAdd, btnCannel, btnDelete, btnSave, btnUpdate});
+
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnFind, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnCannel, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtTimSP, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnFind, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(42, Short.MAX_VALUE))
+                .addGap(15, 15, 15))
         );
 
         jPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnCannel, btnDelete, btnFind, btnSave, btnUpdate});
@@ -515,15 +540,44 @@ public class QLSP extends javax.swing.JInternalFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    protected void read() {
+        String query = "EXEC find_id_sp ?";
+        List<SanPham> listsp = new ArrayList<SanPham>();
+        try {
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, txtTimSP.getText());
+
+//            ps.execute();
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String MaSP = rs.getString(1);
+                String TenSP = rs.getNString(2);
+                String LoaiSP = rs.getString(3);
+                String MauSac = rs.getString(4);
+                int Size = rs.getInt(5);
+                String Image = rs.getString(6);
+                double Gia = rs.getDouble(7);
+                Date Ngaynhap = rs.getDate(8);
+                int SoLuong = rs.getInt(9);
+                String TrangThai = rs.getNString(10);
+                
+                listsp.add(new SanPham(MaSP, TenSP, LoaiSP, MauSac, Size, Image, Gia, Ngaynhap, SoLuong, TrangThai));
+            }
+            renderForm(listsp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     protected void renderForm(List<SanPham> sp) {
         model = (DefaultTableModel) tblListSP.getModel();
         model.setRowCount(0);
-
+        String patter = "#,###,###";
         for (int i = 0; i < sp.size(); i++) {
+            dcf.applyPattern(patter);
             SanPham x = sp.get(i);
             model.addRow(new Object[]{x.getID_SP(), x.getTen_SP(), x.getLoai_SP(),
-                x.getMauSac(), x.getSize(), current.format(x.getGiaTien()), x.getNgaynhap(), x.getSoLuong(),
+                x.getMauSac(), x.getSize(), dcf.format(x.getGiaTien()), x.getNgaynhap(), x.getSoLuong(),
                 x.getTrangThai()});
         }
     }
@@ -569,40 +623,6 @@ public class QLSP extends javax.swing.JInternalFrame {
         }
         return conn;
     }
-    private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
-        // TODO add your handling code here:
-        String MaSP = JOptionPane.showInputDialog(this, "Mã sản phẩm: ", "Tìm kiếm sản phẩm", JOptionPane.DEFAULT_OPTION);
-//        int i = 0;
-        boolean check = false;
-        if (MaSP != null) {
-            for (int j = 0; j < ListSP.size(); j++) {
-                SanPham x = ListSP.get(j);
-                if (MaSP.equalsIgnoreCase(x.getID_SP())) {
-                    check = true;
-                    index = j;
-                    tblListSP.setRowSelectionInterval(index, index);
-                    ShowDetails();
-                    return;
-                }
-
-            }
-//            for (SanPham sp : ListSP) {
-//                i++;
-//                if (sp.getID_SP().equalsIgnoreCase(MaSP)) {
-//                    index = i;
-//                    check = true;
-//                    tblListSP.setRowSelectionInterval(index, index);
-//                    ShowDetails();
-//                    return;
-//                }
-//            }
-        }
-        if (check == false) {
-            JOptionPane.showMessageDialog(this, "Không tồn tại mã sản phẩm");
-            return;
-        }
-    }//GEN-LAST:event_btnFindActionPerformed
-
     private void txtMauSacActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMauSacActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtMauSacActionPerformed
@@ -652,12 +672,11 @@ public class QLSP extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_lblTailenMouseExited
     protected void fetchLoaiSP() {
         String query = "SELECT * FROM SANPHAM";
-        
+
         try {
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
-            
-            
+
         } catch (Exception e) {
         }
     }
@@ -736,7 +755,7 @@ public class QLSP extends javax.swing.JInternalFrame {
 
     private void tblListSPMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblListSPMouseClicked
         // TODO add your handling code here:
-       
+
         index = tblListSP.getSelectedRow();
 
         try {
@@ -806,6 +825,57 @@ public class QLSP extends javax.swing.JInternalFrame {
             return;
         }
     }//GEN-LAST:event_btnUpdateActionPerformed
+    protected void find(List<SanPham> sp) {
+        List<SanPham> list = new ArrayList<SanPham>();
+        for (SanPham x : sp) {
+            if (x.getID_SP().contains(txtTimSP.getText())) {
+                String MaSP = x.getID_SP();
+                String TenSP = x.getTen_SP();
+                String LoaiSP = x.getLoai_SP();
+                String MauSac = x.getMauSac();
+                int Size = x.getSize();
+                String Image = x.getImage();
+                double Gia = x.getGiaTien();
+                Date Ngaynhap = (Date) x.getNgaynhap();
+                int SoLuong = x.getSoLuong();
+                String TrangThai = x.getTrangThai();
+//                System.out.println(i);
+                list.add(new SanPham(MaSP, TenSP, LoaiSP, MauSac, Size, Image, Gia, Ngaynhap, SoLuong, TrangThai));
+            }
+
+        }
+        renderForm(list);
+    }
+    private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
+        List<SanPham> list = new ArrayList<SanPham>();
+
+        String txt = "";
+        try {
+//            PreparedStatement ps;
+            if (txtTimSP.getText().isEmpty()) {
+                ListSP.clear();
+                ListSP = fetchList();
+                renderForm(ListSP);
+            } else if (!txtTimSP.getText().isEmpty()) {
+//                String query = "EXEC find_id_sp ?";
+//                PreparedStatement ps = conn.prepareStatement(query);
+//                ps.setString(1, txtTimSP.getText());
+//                
+//                ResultSet rs = ps.executeQuery();
+                read();
+//                while (rs.next()) {
+//                    
+//                    
+//                    ListSP.clear();
+//                    ListSP.add(new SanPham(MaSP, TenSP, LoaiSP, MauSac, Size, Image, Gia, Ngaynhap, SoLuong, TrangThai));
+//                }
+//                System.out.println(ListSP.size());
+//                renderForm(ListSP);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_btnFindActionPerformed
 
     private boolean checkNull() {
         if (txtMaSP.getText().isEmpty()) {
@@ -946,12 +1016,13 @@ public class QLSP extends javax.swing.JInternalFrame {
     }
 
     private void ShowDetails() {
-
+        String patter = "#######";
+        dcf.applyPattern(patter);
         SanPham sp = ListSP.get(index);
         ImageName = sp.getImage();
         txtMaSP.setText(sp.getID_SP());
         txtTenSP.setText(sp.getTen_SP());
-        txtGiaTien.setText(current.format(sp.getGiaTien()));
+        txtGiaTien.setText(dcf.format(sp.getGiaTien()));
         txtNgayNhap.setText(sp.getNgaynhap().toString());
         cboLoaiSP.setSelectedItem(sp.getLoai_SP());
         txtMauSac.setText(sp.getMauSac());
@@ -999,6 +1070,7 @@ public class QLSP extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
@@ -1018,6 +1090,7 @@ public class QLSP extends javax.swing.JInternalFrame {
     private javax.swing.JTextField txtNgayNhap;
     private javax.swing.JTextField txtSoLuong;
     private javax.swing.JTextField txtTenSP;
+    private javax.swing.JTextField txtTimSP;
     // End of variables declaration//GEN-END:variables
 
     private void Delete() {
