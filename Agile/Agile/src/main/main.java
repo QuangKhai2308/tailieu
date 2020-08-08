@@ -12,7 +12,7 @@ import Form.QLSP;
 import Form.Quanly_doanhthu;
 import Form.Signup;
 import Form.Thongtin_khachhang;
-import Form.Timkiem_sp;
+import Form.thongtin_hoadon;
 import Form.menu_banhang;
 import javax.swing.JFrame;
 
@@ -26,7 +26,7 @@ public class main extends javax.swing.JFrame {
      * Creates new form main
      */
     Login lg;
-    Timkiem_sp tk_sp;
+    thongtin_hoadon tt_hd;
     Signup sg;
     Thongtin_khachhang tt_kh;
     QLSP qlsp;
@@ -165,7 +165,7 @@ public class main extends javax.swing.JFrame {
 
         jMenuItem6.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jMenuItem6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/tk.png"))); // NOI18N
-        jMenuItem6.setText("Tìm kiếm sản phẩm");
+        jMenuItem6.setText("Thông tin hóa đơn");
         jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem6ActionPerformed(evt);
@@ -197,6 +197,7 @@ public class main extends javax.swing.JFrame {
 //            lg.show();
             lg.setLocation(this.getWidth() / 2 - lg.getWidth() / 2, (this.getHeight() - 20) / 2 - lg.getHeight() / 2 - 20);
             lg.setVisible(true);
+            System.out.println(this.getWidth());
         } else {
             lg.setLocation(this.getWidth() / 2 - lg.getWidth() / 2, (this.getHeight() - 20) / 2 - lg.getHeight() / 2 - 20);
             lg.setVisible(true);
@@ -204,11 +205,11 @@ public class main extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
-        if (tk_sp == null || tk_sp.isClosed()) {
-            tk_sp = new Timkiem_sp();
-            tk_sp.setLocation(this.getWidth() / 2 - tk_sp.getWidth() / 2, (this.getHeight() - 20) / 2 - tk_sp.getHeight() / 2 - 20);
-            Desktop.add(tk_sp);
-            tk_sp.setVisible(true);
+        if (tt_hd == null || tt_hd.isClosed()) {
+            tt_hd = new thongtin_hoadon();
+            tt_hd.setLocation(this.getWidth() / 2 - tt_hd.getWidth() / 2, (this.getHeight() - 20) / 2 - tt_hd.getHeight() / 2 - 20);
+            Desktop.add(tt_hd);
+            tt_hd.setVisible(true);
         }
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 

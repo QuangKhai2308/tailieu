@@ -16,8 +16,10 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.sql.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -41,6 +43,7 @@ public class QLBH extends javax.swing.JInternalFrame {
     DefaultTableModel model;
     int index;
     String partter = "#,###,###";
+
     public QLBH() {
         initComponents();
         conn = getConnection();
@@ -154,11 +157,6 @@ public class QLBH extends javax.swing.JInternalFrame {
 
         cboMaNV.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         cboMaNV.setEnabled(false);
-        cboMaNV.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                cboMaNVItemStateChanged(evt);
-            }
-        });
         cboMaNV.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cboMaNVActionPerformed(evt);
@@ -302,11 +300,6 @@ public class QLBH extends javax.swing.JInternalFrame {
 
         cboMaSP.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         cboMaSP.setEnabled(false);
-        cboMaSP.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                cboMaSPItemStateChanged(evt);
-            }
-        });
         cboMaSP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cboMaSPActionPerformed(evt);
@@ -485,6 +478,11 @@ public class QLBH extends javax.swing.JInternalFrame {
         btnThoat.setFont(new java.awt.Font("Tahoma", 0, 20)); // NOI18N
         btnThoat.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Icons/logout.png"))); // NOI18N
         btnThoat.setText("Thoát");
+        btnThoat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnThoatActionPerformed(evt);
+            }
+        });
 
         jPanel10.setBackground(new java.awt.Color(255, 204, 204));
         jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2), "Giỏ hàng", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 18))); // NOI18N
@@ -930,6 +928,9 @@ public class QLBH extends javax.swing.JInternalFrame {
             if (cboMaSP.getSelectedIndex() == -1) {
                 return;
             } else {
+//                cboMauSac.setSelectedIndex(-1);
+//                cboSize.setSelectedIndex(-1);
+//                cboTenSP.setSelectedIndex(-1);
                 PreparedStatement ps = conn.prepareStatement(query);
                 ps.setString(1, cboMaSP.getSelectedItem().toString());
 
@@ -949,56 +950,6 @@ public class QLBH extends javax.swing.JInternalFrame {
             e.printStackTrace();
         }
     }//GEN-LAST:event_cboMaSPActionPerformed
-
-    private void cboMaSPItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboMaSPItemStateChanged
-        // TODO add your handling code here:
-        //        String query = "SELECT * FROM SANPHAM WHERE ID_SP = ?";
-        //
-        //        try {
-        //            if (cboMaSP.getSelectedIndex() == -1) {
-        //                return;
-        //            } else {
-        //                PreparedStatement ps = conn.prepareStatement(query);
-        //                ps.setString(1, cboMaSP.getSelectedItem().toString());
-        //
-        //                ResultSet rs = ps.executeQuery();
-        //                cboTenSP.removeAllItems();
-        //                cboMauSac.removeAllItems();
-        //                cboSize.removeAllItems();
-        //                while (rs.next()) {
-        //                    cboTenSP.addItem(rs.getNString("TEN_SP"));
-        //                    cboMauSac.addItem(rs.getNString("MAUSAC"));
-        //                    cboSize.addItem(rs.getInt("SIZE") + "");
-        //                }
-        //            }
-        //        } catch (Exception e) {
-        //            e.printStackTrace();
-        //        }
-    }//GEN-LAST:event_cboMaSPItemStateChanged
-
-    private void cboMaNVItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboMaNVItemStateChanged
-        // TODO add your handling code here:
-        //        String query = "SELECT * FROM NHANVIEN WHERE ID_NV = ?";
-        //
-        //        try {
-        ////            cboMaNV.removeAllItems();
-        //            if (cboMaNV.getSelectedIndex() == -1) {
-        //                return;
-        //            } else {
-        //                PreparedStatement ps = conn.prepareStatement(query);
-        //                ps.setString(1, cboMaNV.getSelectedItem().toString());
-        //
-        //                ResultSet rs = ps.executeQuery();
-        //
-        //                while (rs.next()) {
-        //                    txtTenNV.setText(rs.getString("TEN_NV"));
-        //                }
-        //            }
-        //
-        //        } catch (Exception e) {
-        //            e.printStackTrace();
-        //        }
-    }//GEN-LAST:event_cboMaNVItemStateChanged
     protected boolean checkSL() {
         int sln = Integer.parseInt(txtSoLuong.getText());
         int slt = Integer.parseInt(lblSL.getText().substring(5));
@@ -1012,12 +963,12 @@ public class QLBH extends javax.swing.JInternalFrame {
     }
     private void bnTSPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnTSPActionPerformed
         // TODO add your handling code here:
-        
+
         if (checkNull() && checkNgay() && checkSoDT() && checkSo() && checkMaHD()) {
             if (lblSL.getText().equalsIgnoreCase("0")) {
                 JOptionPane.showMessageDialog(this, "Sản phẩm này đã hết hàng");
                 return;
-            } else if (checkSL()){
+            } else if (checkSL()) {
                 try {
                     txtMaHD.setEditable(false);
                     addToForm();
@@ -1092,6 +1043,17 @@ public class QLBH extends javax.swing.JInternalFrame {
             fillToForm();
         }
     }//GEN-LAST:event_btnXoaActionPerformed
+
+    private void btnThoatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThoatActionPerformed
+        // TODO add your handling code here:
+        menu_banhang menu_BH = new menu_banhang();
+        this.getDesktopPane().add(menu_BH);
+//                menu_BH.pack();
+        menu_BH.setVisible(true);
+        menu_BH.setLocation(this.getDesktopPane().getWidth() / 2 - menu_BH.getWidth() / 2, (this.getDesktopPane().getHeight()) / 2 - menu_BH.getHeight() / 2);
+
+        this.dispose();
+    }//GEN-LAST:event_btnThoatActionPerformed
     protected void fetechMaNV() {
         String query = "SELECT ID_NV FROM NHANVIEN";
 
@@ -1113,7 +1075,7 @@ public class QLBH extends javax.swing.JInternalFrame {
 
     protected void fetchMaSP() {
         String query = "SELECT * FROM SANPHAM";
-
+        List<Object> list = new ArrayList<>();
         try {
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
@@ -1121,6 +1083,13 @@ public class QLBH extends javax.swing.JInternalFrame {
             while (rs.next()) {
                 cboMaSP.addItem(rs.getString("ID_SP"));
             }
+//            Set<Object> listout = new HashSet<Object>(list);
+//            List<Object> listadd = new ArrayList<>(listout);
+//            for (int i = 0; i < listadd.size(); i++) {
+//                cboMaSP.addItem(listadd.get(i).toString());
+//                
+//            }
+//            System.out.println(listadd.size());
 //            cboMaSP.setSelectedIndex(-1);
         } catch (Exception e) {
             e.printStackTrace();
@@ -1272,7 +1241,7 @@ public class QLBH extends javax.swing.JInternalFrame {
     protected void fillToForm() {
         model = (DefaultTableModel) tblListSP.getModel();
         model.setRowCount(0);
-        
+
         for (QLDH x : ListDH) {
             dcf.applyPattern(partter);
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
@@ -1480,7 +1449,7 @@ public class QLBH extends javax.swing.JInternalFrame {
     protected void showDetails() {
         QLDH x = ListDH.get(index);
         dcf.applyPattern(partter);
-        
+
         txtMaHD.setText(x.getMaHD());
         txtNgayBan.setText(x.getNgayBan() + "");
         cboMaNV.setSelectedItem(x.getMaNV());

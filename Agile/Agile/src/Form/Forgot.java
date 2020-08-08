@@ -275,7 +275,7 @@ public class Forgot extends javax.swing.JInternalFrame {
                     Login lg = new Login();
                     this.getDesktopPane().add(lg);
                     lg.setVisible(true);
-                    lg.setLocation(550, 310);
+                    lg.setLocation(this.getDesktopPane().getWidth() / 2 - lg.getWidth() / 2, (this.getDesktopPane().getHeight()) / 2 - lg.getHeight() / 2);
                     this.dispose();
                 } else {
                     JOptionPane.showMessageDialog(this, "Username hoặc số điện thoại không khớp");

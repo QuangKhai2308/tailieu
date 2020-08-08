@@ -333,7 +333,7 @@ public class Login extends javax.swing.JInternalFrame {
                 this.getDesktopPane().add(menu_BH);
 //                menu_BH.pack();
                 menu_BH.setVisible(true);
-                menu_BH.setLocation(500,500);
+                menu_BH.setLocation(this.getDesktopPane().getWidth() / 2 - menu_BH.getWidth() / 2, (this.getDesktopPane().getHeight()) / 2 - menu_BH.getHeight() / 2);
 
                 this.dispose();
 
